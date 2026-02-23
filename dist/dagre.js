@@ -1,14 +1,620 @@
 var dagre = (() => {
   var __getOwnPropNames = Object.getOwnPropertyNames;
-  var __require = /* @__PURE__ */ ((x) => typeof require !== "undefined" ? require : typeof Proxy !== "undefined" ? new Proxy(x, {
-    get: (a, b) => (typeof require !== "undefined" ? require : a)[b]
-  }) : x)(function(x) {
-    if (typeof require !== "undefined") return require.apply(this, arguments);
-    throw Error('Dynamic require of "' + x + '" is not supported');
-  });
-  var __commonJS = (cb, mod) => function __require2() {
+  var __commonJS = (cb, mod) => function __require() {
     return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
   };
+
+  // node_modules/@dagrejs/graphlib/dist/graphlib.cjs.js
+  var require_graphlib_cjs = __commonJS({
+    "node_modules/@dagrejs/graphlib/dist/graphlib.cjs.js"(exports, module) {
+      var me = Object.defineProperty;
+      var Oe = (s, e, r) => e in s ? me(s, e, { enumerable: true, configurable: true, writable: true, value: r }) : s[e] = r;
+      var c = (s, e) => () => (e || s((e = { exports: {} }).exports, e), e.exports);
+      var l = (s, e, r) => Oe(s, typeof e != "symbol" ? e + "" : e, r);
+      var b = c((dr, T) => {
+        "use strict";
+        var ye = "\0", v = "\0", D = "", O = class {
+          constructor(e) {
+            l(this, "_isDirected", true);
+            l(this, "_isMultigraph", false);
+            l(this, "_isCompound", false);
+            l(this, "_label");
+            l(this, "_defaultNodeLabelFn", () => {
+            });
+            l(this, "_defaultEdgeLabelFn", () => {
+            });
+            l(this, "_nodes", {});
+            l(this, "_in", {});
+            l(this, "_preds", {});
+            l(this, "_out", {});
+            l(this, "_sucs", {});
+            l(this, "_edgeObjs", {});
+            l(this, "_edgeLabels", {});
+            l(this, "_nodeCount", 0);
+            l(this, "_edgeCount", 0);
+            l(this, "_parent");
+            l(this, "_children");
+            e && (this._isDirected = Object.hasOwn(e, "directed") ? e.directed : true, this._isMultigraph = Object.hasOwn(e, "multigraph") ? e.multigraph : false, this._isCompound = Object.hasOwn(e, "compound") ? e.compound : false), this._isCompound && (this._parent = {}, this._children = {}, this._children[v] = {});
+          }
+          isDirected() {
+            return this._isDirected;
+          }
+          isMultigraph() {
+            return this._isMultigraph;
+          }
+          isCompound() {
+            return this._isCompound;
+          }
+          setGraph(e) {
+            return this._label = e, this;
+          }
+          graph() {
+            return this._label;
+          }
+          setDefaultNodeLabel(e) {
+            return this._defaultNodeLabelFn = e, typeof e != "function" && (this._defaultNodeLabelFn = () => e), this;
+          }
+          nodeCount() {
+            return this._nodeCount;
+          }
+          nodes() {
+            return Object.keys(this._nodes);
+          }
+          sources() {
+            var e = this;
+            return this.nodes().filter((r) => Object.keys(e._in[r]).length === 0);
+          }
+          sinks() {
+            var e = this;
+            return this.nodes().filter((r) => Object.keys(e._out[r]).length === 0);
+          }
+          setNodes(e, r) {
+            var t = arguments, i = this;
+            return e.forEach(function(n) {
+              t.length > 1 ? i.setNode(n, r) : i.setNode(n);
+            }), this;
+          }
+          setNode(e, r) {
+            return Object.hasOwn(this._nodes, e) ? (arguments.length > 1 && (this._nodes[e] = r), this) : (this._nodes[e] = arguments.length > 1 ? r : this._defaultNodeLabelFn(e), this._isCompound && (this._parent[e] = v, this._children[e] = {}, this._children[v][e] = true), this._in[e] = {}, this._preds[e] = {}, this._out[e] = {}, this._sucs[e] = {}, ++this._nodeCount, this);
+          }
+          node(e) {
+            return this._nodes[e];
+          }
+          hasNode(e) {
+            return Object.hasOwn(this._nodes, e);
+          }
+          removeNode(e) {
+            var r = this;
+            if (Object.hasOwn(this._nodes, e)) {
+              var t = (i) => r.removeEdge(r._edgeObjs[i]);
+              delete this._nodes[e], this._isCompound && (this._removeFromParentsChildList(e), delete this._parent[e], this.children(e).forEach(function(i) {
+                r.setParent(i);
+              }), delete this._children[e]), Object.keys(this._in[e]).forEach(t), delete this._in[e], delete this._preds[e], Object.keys(this._out[e]).forEach(t), delete this._out[e], delete this._sucs[e], --this._nodeCount;
+            }
+            return this;
+          }
+          setParent(e, r) {
+            if (!this._isCompound) throw new Error("Cannot set parent in a non-compound graph");
+            if (r === void 0) r = v;
+            else {
+              r += "";
+              for (var t = r; t !== void 0; t = this.parent(t)) if (t === e) throw new Error("Setting " + r + " as parent of " + e + " would create a cycle");
+              this.setNode(r);
+            }
+            return this.setNode(e), this._removeFromParentsChildList(e), this._parent[e] = r, this._children[r][e] = true, this;
+          }
+          _removeFromParentsChildList(e) {
+            delete this._children[this._parent[e]][e];
+          }
+          parent(e) {
+            if (this._isCompound) {
+              var r = this._parent[e];
+              if (r !== v) return r;
+            }
+          }
+          children(e = v) {
+            if (this._isCompound) {
+              var r = this._children[e];
+              if (r) return Object.keys(r);
+            } else {
+              if (e === v) return this.nodes();
+              if (this.hasNode(e)) return [];
+            }
+          }
+          predecessors(e) {
+            var r = this._preds[e];
+            if (r) return Object.keys(r);
+          }
+          successors(e) {
+            var r = this._sucs[e];
+            if (r) return Object.keys(r);
+          }
+          neighbors(e) {
+            var r = this.predecessors(e);
+            if (r) {
+              let i = new Set(r);
+              for (var t of this.successors(e)) i.add(t);
+              return Array.from(i.values());
+            }
+          }
+          isLeaf(e) {
+            var r;
+            return this.isDirected() ? r = this.successors(e) : r = this.neighbors(e), r.length === 0;
+          }
+          filterNodes(e) {
+            var r = new this.constructor({ directed: this._isDirected, multigraph: this._isMultigraph, compound: this._isCompound });
+            r.setGraph(this.graph());
+            var t = this;
+            Object.entries(this._nodes).forEach(function([a, o]) {
+              e(a) && r.setNode(a, o);
+            }), Object.values(this._edgeObjs).forEach(function(a) {
+              r.hasNode(a.v) && r.hasNode(a.w) && r.setEdge(a, t.edge(a));
+            });
+            var i = {};
+            function n(a) {
+              var o = t.parent(a);
+              return o === void 0 || r.hasNode(o) ? (i[a] = o, o) : o in i ? i[o] : n(o);
+            }
+            return this._isCompound && r.nodes().forEach((a) => r.setParent(a, n(a))), r;
+          }
+          setDefaultEdgeLabel(e) {
+            return this._defaultEdgeLabelFn = e, typeof e != "function" && (this._defaultEdgeLabelFn = () => e), this;
+          }
+          edgeCount() {
+            return this._edgeCount;
+          }
+          edges() {
+            return Object.values(this._edgeObjs);
+          }
+          setPath(e, r) {
+            var t = this, i = arguments;
+            return e.reduce(function(n, a) {
+              return i.length > 1 ? t.setEdge(n, a, r) : t.setEdge(n, a), a;
+            }), this;
+          }
+          setEdge() {
+            var e, r, t, i, n = false, a = arguments[0];
+            typeof a == "object" && a !== null && "v" in a ? (e = a.v, r = a.w, t = a.name, arguments.length === 2 && (i = arguments[1], n = true)) : (e = a, r = arguments[1], t = arguments[3], arguments.length > 2 && (i = arguments[2], n = true)), e = "" + e, r = "" + r, t !== void 0 && (t = "" + t);
+            var o = g(this._isDirected, e, r, t);
+            if (Object.hasOwn(this._edgeLabels, o)) return n && (this._edgeLabels[o] = i), this;
+            if (t !== void 0 && !this._isMultigraph) throw new Error("Cannot set a named edge when isMultigraph = false");
+            this.setNode(e), this.setNode(r), this._edgeLabels[o] = n ? i : this._defaultEdgeLabelFn(e, r, t);
+            var h = Ne(this._isDirected, e, r, t);
+            return e = h.v, r = h.w, Object.freeze(h), this._edgeObjs[o] = h, L(this._preds[r], e), L(this._sucs[e], r), this._in[r][o] = h, this._out[e][o] = h, this._edgeCount++, this;
+          }
+          edge(e, r, t) {
+            var i = arguments.length === 1 ? m(this._isDirected, arguments[0]) : g(this._isDirected, e, r, t);
+            return this._edgeLabels[i];
+          }
+          edgeAsObj() {
+            let e = this.edge(...arguments);
+            return typeof e != "object" ? { label: e } : e;
+          }
+          hasEdge(e, r, t) {
+            var i = arguments.length === 1 ? m(this._isDirected, arguments[0]) : g(this._isDirected, e, r, t);
+            return Object.hasOwn(this._edgeLabels, i);
+          }
+          removeEdge(e, r, t) {
+            var i = arguments.length === 1 ? m(this._isDirected, arguments[0]) : g(this._isDirected, e, r, t), n = this._edgeObjs[i];
+            return n && (e = n.v, r = n.w, delete this._edgeLabels[i], delete this._edgeObjs[i], F(this._preds[r], e), F(this._sucs[e], r), delete this._in[r][i], delete this._out[e][i], this._edgeCount--), this;
+          }
+          inEdges(e, r) {
+            return this.isDirected() ? this.filterEdges(this._in[e], e, r) : this.nodeEdges(e, r);
+          }
+          outEdges(e, r) {
+            return this.isDirected() ? this.filterEdges(this._out[e], e, r) : this.nodeEdges(e, r);
+          }
+          nodeEdges(e, r) {
+            if (e in this._nodes) return this.filterEdges({ ...this._in[e], ...this._out[e] }, e, r);
+          }
+          filterEdges(e, r, t) {
+            if (e) {
+              var i = Object.values(e);
+              return t ? i.filter(function(n) {
+                return n.v === r && n.w === t || n.v === t && n.w === r;
+              }) : i;
+            }
+          }
+        };
+        function L(s, e) {
+          s[e] ? s[e]++ : s[e] = 1;
+        }
+        function F(s, e) {
+          --s[e] || delete s[e];
+        }
+        function g(s, e, r, t) {
+          var i = "" + e, n = "" + r;
+          if (!s && i > n) {
+            var a = i;
+            i = n, n = a;
+          }
+          return i + D + n + D + (t === void 0 ? ye : t);
+        }
+        function Ne(s, e, r, t) {
+          var i = "" + e, n = "" + r;
+          if (!s && i > n) {
+            var a = i;
+            i = n, n = a;
+          }
+          var o = { v: i, w: n };
+          return t && (o.name = t), o;
+        }
+        function m(s, e) {
+          return g(s, e.v, e.w, e.name);
+        }
+        T.exports = O;
+      });
+      var P = c((cr, A) => {
+        A.exports = "3.0.4";
+      });
+      var S = c((lr, M) => {
+        M.exports = { Graph: b(), version: P() };
+      });
+      var U = c((_r, G) => {
+        var je = b();
+        G.exports = { write: Ie, read: Ce };
+        function Ie(s) {
+          var e = { options: { directed: s.isDirected(), multigraph: s.isMultigraph(), compound: s.isCompound() }, nodes: ke(s), edges: xe(s) };
+          return s.graph() !== void 0 && (e.value = structuredClone(s.graph())), e;
+        }
+        function ke(s) {
+          return s.nodes().map(function(e) {
+            var r = s.node(e), t = s.parent(e), i = { v: e };
+            return r !== void 0 && (i.value = r), t !== void 0 && (i.parent = t), i;
+          });
+        }
+        function xe(s) {
+          return s.edges().map(function(e) {
+            var r = s.edge(e), t = { v: e.v, w: e.w };
+            return e.name !== void 0 && (t.name = e.name), r !== void 0 && (t.value = r), t;
+          });
+        }
+        function Ce(s) {
+          var e = new je(s.options).setGraph(s.value);
+          return s.nodes.forEach(function(r) {
+            e.setNode(r.v, r.value), r.parent && e.setParent(r.v, r.parent);
+          }), s.edges.forEach(function(r) {
+            e.setEdge({ v: r.v, w: r.w, name: r.name }, r.value);
+          }), e;
+        }
+      });
+      var y = c((pr, W) => {
+        W.exports = De;
+        var qe = () => 1;
+        function De(s, e, r, t) {
+          return Le(s, String(e), r || qe, t || function(i) {
+            return s.outEdges(i);
+          });
+        }
+        function Le(s, e, r, t) {
+          var i = {}, n = true, a = 0, o = s.nodes(), h = function(f) {
+            var p = r(f);
+            i[f.v].distance + p < i[f.w].distance && (i[f.w] = { distance: i[f.v].distance + p, predecessor: f.v }, n = true);
+          }, u = function() {
+            o.forEach(function(f) {
+              t(f).forEach(function(p) {
+                var q = p.v === f ? p.v : p.w, we = q === p.v ? p.w : p.v;
+                h({ v: q, w: we });
+              });
+            });
+          };
+          o.forEach(function(f) {
+            var p = f === e ? 0 : Number.POSITIVE_INFINITY;
+            i[f] = { distance: p };
+          });
+          for (var d = o.length, _ = 1; _ < d && (n = false, a++, u(), !!n); _++) ;
+          if (a === d - 1 && (n = false, u(), n)) throw new Error("The graph contains a negative weight cycle");
+          return i;
+        }
+      });
+      var z = c((vr, Y) => {
+        Y.exports = Fe;
+        function Fe(s) {
+          var e = {}, r = [], t;
+          function i(n) {
+            Object.hasOwn(e, n) || (e[n] = true, t.push(n), s.successors(n).forEach(i), s.predecessors(n).forEach(i));
+          }
+          return s.nodes().forEach(function(n) {
+            t = [], i(n), t.length && r.push(t);
+          }), r;
+        }
+      });
+      var j = c((gr, V) => {
+        var N = class {
+          constructor() {
+            l(this, "_arr", []);
+            l(this, "_keyIndices", {});
+          }
+          size() {
+            return this._arr.length;
+          }
+          keys() {
+            return this._arr.map(function(e) {
+              return e.key;
+            });
+          }
+          has(e) {
+            return Object.hasOwn(this._keyIndices, e);
+          }
+          priority(e) {
+            var r = this._keyIndices[e];
+            if (r !== void 0) return this._arr[r].priority;
+          }
+          min() {
+            if (this.size() === 0) throw new Error("Queue underflow");
+            return this._arr[0].key;
+          }
+          add(e, r) {
+            var t = this._keyIndices;
+            if (e = String(e), !Object.hasOwn(t, e)) {
+              var i = this._arr, n = i.length;
+              return t[e] = n, i.push({ key: e, priority: r }), this._decrease(n), true;
+            }
+            return false;
+          }
+          removeMin() {
+            this._swap(0, this._arr.length - 1);
+            var e = this._arr.pop();
+            return delete this._keyIndices[e.key], this._heapify(0), e.key;
+          }
+          decrease(e, r) {
+            var t = this._keyIndices[e];
+            if (r > this._arr[t].priority) throw new Error("New priority is greater than current priority. Key: " + e + " Old: " + this._arr[t].priority + " New: " + r);
+            this._arr[t].priority = r, this._decrease(t);
+          }
+          _heapify(e) {
+            var r = this._arr, t = 2 * e, i = t + 1, n = e;
+            t < r.length && (n = r[t].priority < r[n].priority ? t : n, i < r.length && (n = r[i].priority < r[n].priority ? i : n), n !== e && (this._swap(e, n), this._heapify(n)));
+          }
+          _decrease(e) {
+            for (var r = this._arr, t = r[e].priority, i; e !== 0 && (i = e >> 1, !(r[i].priority < t)); ) this._swap(e, i), e = i;
+          }
+          _swap(e, r) {
+            var t = this._arr, i = this._keyIndices, n = t[e], a = t[r];
+            t[e] = a, t[r] = n, i[a.key] = e, i[n.key] = r;
+          }
+        };
+        V.exports = N;
+      });
+      var w = c((br, H) => {
+        var Te = j();
+        H.exports = Pe;
+        var Ae = () => 1;
+        function Pe(s, e, r, t) {
+          var i = function(n) {
+            return s.outEdges(n);
+          };
+          return Me(s, String(e), r || Ae, t || i);
+        }
+        function Me(s, e, r, t) {
+          var i = {}, n = new Te(), a, o, h = function(u) {
+            var d = u.v !== a ? u.v : u.w, _ = i[d], f = r(u), p = o.distance + f;
+            if (f < 0) throw new Error("dijkstra does not allow negative edge weights. Bad edge: " + u + " Weight: " + f);
+            p < _.distance && (_.distance = p, _.predecessor = a, n.decrease(d, p));
+          };
+          for (s.nodes().forEach(function(u) {
+            var d = u === e ? 0 : Number.POSITIVE_INFINITY;
+            i[u] = { distance: d }, n.add(u, d);
+          }); n.size() > 0 && (a = n.removeMin(), o = i[a], o.distance !== Number.POSITIVE_INFINITY); ) t(a).forEach(h);
+          return i;
+        }
+      });
+      var R = c((wr, K) => {
+        var Se = w();
+        K.exports = Ge;
+        function Ge(s, e, r) {
+          return s.nodes().reduce(function(t, i) {
+            return t[i] = Se(s, i, e, r), t;
+          }, {});
+        }
+      });
+      var Q = c((mr, B) => {
+        B.exports = Ue;
+        function Ue(s, e, r) {
+          if (s[e].predecessor !== void 0) throw new Error("Invalid source vertex");
+          if (s[r].predecessor === void 0 && r !== e) throw new Error("Invalid destination vertex");
+          return { weight: s[r].distance, path: We(s, e, r) };
+        }
+        function We(s, e, r) {
+          for (var t = [], i = r; i !== e; ) t.push(i), i = s[i].predecessor;
+          return t.push(e), t.reverse();
+        }
+      });
+      var I = c((Or, J) => {
+        J.exports = Ye;
+        function Ye(s) {
+          var e = 0, r = [], t = {}, i = [];
+          function n(a) {
+            var o = t[a] = { onStack: true, lowlink: e, index: e++ };
+            if (r.push(a), s.successors(a).forEach(function(d) {
+              Object.hasOwn(t, d) ? t[d].onStack && (o.lowlink = Math.min(o.lowlink, t[d].index)) : (n(d), o.lowlink = Math.min(o.lowlink, t[d].lowlink));
+            }), o.lowlink === o.index) {
+              var h = [], u;
+              do
+                u = r.pop(), t[u].onStack = false, h.push(u);
+              while (a !== u);
+              i.push(h);
+            }
+          }
+          return s.nodes().forEach(function(a) {
+            Object.hasOwn(t, a) || n(a);
+          }), i;
+        }
+      });
+      var Z = c((yr, X) => {
+        var ze = I();
+        X.exports = Ve;
+        function Ve(s) {
+          return ze(s).filter(function(e) {
+            return e.length > 1 || e.length === 1 && s.hasEdge(e[0], e[0]);
+          });
+        }
+      });
+      var ee = c((Nr, $) => {
+        $.exports = Ke;
+        var He = () => 1;
+        function Ke(s, e, r) {
+          return Re(s, e || He, r || function(t) {
+            return s.outEdges(t);
+          });
+        }
+        function Re(s, e, r) {
+          var t = {}, i = s.nodes();
+          return i.forEach(function(n) {
+            t[n] = {}, t[n][n] = { distance: 0 }, i.forEach(function(a) {
+              n !== a && (t[n][a] = { distance: Number.POSITIVE_INFINITY });
+            }), r(n).forEach(function(a) {
+              var o = a.v === n ? a.w : a.v, h = e(a);
+              t[n][o] = { distance: h, predecessor: n };
+            });
+          }), i.forEach(function(n) {
+            var a = t[n];
+            i.forEach(function(o) {
+              var h = t[o];
+              i.forEach(function(u) {
+                var d = h[n], _ = a[u], f = h[u], p = d.distance + _.distance;
+                p < f.distance && (f.distance = p, f.predecessor = _.predecessor);
+              });
+            });
+          }), t;
+        }
+      });
+      var k = c((jr, te) => {
+        function re(s) {
+          var e = {}, r = {}, t = [];
+          function i(n) {
+            if (Object.hasOwn(r, n)) throw new E();
+            Object.hasOwn(e, n) || (r[n] = true, e[n] = true, s.predecessors(n).forEach(i), delete r[n], t.push(n));
+          }
+          if (s.sinks().forEach(i), Object.keys(e).length !== s.nodeCount()) throw new E();
+          return t;
+        }
+        var E = class extends Error {
+          constructor() {
+            super(...arguments);
+          }
+        };
+        te.exports = re;
+        re.CycleException = E;
+      });
+      var ne = c((Ir, se) => {
+        var ie = k();
+        se.exports = Be;
+        function Be(s) {
+          try {
+            ie(s);
+          } catch (e) {
+            if (e instanceof ie.CycleException) return false;
+            throw e;
+          }
+          return true;
+        }
+      });
+      var x = c((kr, ae) => {
+        ae.exports = Qe;
+        function Qe(s, e, r, t, i) {
+          Array.isArray(e) || (e = [e]);
+          var n = (s.isDirected() ? s.successors : s.neighbors).bind(s), a = {};
+          return e.forEach(function(o) {
+            if (!s.hasNode(o)) throw new Error("Graph does not have node: " + o);
+            i = Je(s, o, r === "post", a, n, t, i);
+          }), i;
+        }
+        function Je(s, e, r, t, i, n, a) {
+          if (Object.hasOwn(t, e)) return a;
+          var o = i(e), h = [{ v: e, nb: o, childIdx: 0 }];
+          for (t[e] = true, r || (a = n(a, e)); h.length > 0; ) {
+            for (var u = h[h.length - 1], d = false; u.childIdx < u.nb.length; ) {
+              var _ = u.nb[u.childIdx++];
+              if (!Object.hasOwn(t, _)) {
+                t[_] = true, r || (a = n(a, _));
+                var f = i(_);
+                h.push({ v: _, nb: f, childIdx: 0 }), d = true;
+                break;
+              }
+            }
+            d || (r && (a = n(a, u.v)), h.pop());
+          }
+          return a;
+        }
+      });
+      var C = c((xr, oe) => {
+        var Xe = x();
+        oe.exports = Ze;
+        function Ze(s, e, r) {
+          return Xe(s, e, r, function(t, i) {
+            return t.push(i), t;
+          }, []);
+        }
+      });
+      var he = c((Cr, ue) => {
+        var $e = C();
+        ue.exports = er;
+        function er(s, e) {
+          return $e(s, e, "post");
+        }
+      });
+      var fe = c((qr, de) => {
+        var rr = C();
+        de.exports = tr;
+        function tr(s, e) {
+          return rr(s, e, "pre");
+        }
+      });
+      var le = c((Dr, ce) => {
+        var ir = b(), sr = j();
+        ce.exports = nr;
+        function nr(s, e) {
+          var r = new ir(), t = {}, i = new sr(), n;
+          function a(h) {
+            var u = h.v === n ? h.w : h.v, d = i.priority(u);
+            if (d !== void 0) {
+              var _ = e(h);
+              _ < d && (t[u] = n, i.decrease(u, _));
+            }
+          }
+          if (s.nodeCount() === 0) return r;
+          s.nodes().forEach(function(h) {
+            i.add(h, Number.POSITIVE_INFINITY), r.setNode(h);
+          }), i.decrease(s.nodes()[0], 0);
+          for (var o = false; i.size() > 0; ) {
+            if (n = i.removeMin(), Object.hasOwn(t, n)) r.setEdge(n, t[n]);
+            else {
+              if (o) throw new Error("Input graph is not connected: " + s);
+              o = true;
+            }
+            s.nodeEdges(n).forEach(a);
+          }
+          return r;
+        }
+      });
+      var ve = c((Lr, pe) => {
+        var _e = w(), ar = y();
+        pe.exports = or;
+        function or(s, e, r, t) {
+          return ur(s, e, r, t || function(i) {
+            return s.outEdges(i);
+          });
+        }
+        function ur(s, e, r, t) {
+          if (r === void 0) return _e(s, e, r, t);
+          for (var i = false, n = s.nodes(), a = 0; a < n.length; a++) {
+            for (var o = t(n[a]), h = 0; h < o.length; h++) {
+              var u = o[h], d = u.v === n[a] ? u.v : u.w, _ = d === u.v ? u.w : u.v;
+              r({ v: d, w: _ }) < 0 && (i = true);
+            }
+            if (i) return ar(s, e, r, t);
+          }
+          return _e(s, e, r, t);
+        }
+      });
+      var Ee = c((Fr, ge) => {
+        ge.exports = { bellmanFord: y(), components: z(), dijkstra: w(), dijkstraAll: R(), extractPath: Q(), findCycles: Z(), floydWarshall: ee(), isAcyclic: ne(), postorder: he(), preorder: fe(), prim: le(), shortestPaths: ve(), reduce: x(), tarjan: I(), topsort: k() };
+      });
+      var be = S();
+      module.exports = { Graph: be.Graph, json: U(), alg: Ee(), version: be.version };
+    }
+  });
 
   // lib/data/list.js
   var require_list = __commonJS({
@@ -66,7 +672,7 @@ var dagre = (() => {
   // lib/greedy-fas.js
   var require_greedy_fas = __commonJS({
     "lib/greedy-fas.js"(exports, module) {
-      var Graph = __require("@dagrejs/graphlib").Graph;
+      var Graph = require_graphlib_cjs().Graph;
       var List = require_list();
       module.exports = greedyFAS;
       var DEFAULT_WEIGHT_FN = () => 1;
@@ -168,7 +774,7 @@ var dagre = (() => {
   var require_util = __commonJS({
     "lib/util.js"(exports, module) {
       "use strict";
-      var Graph = __require("@dagrejs/graphlib").Graph;
+      var Graph = require_graphlib_cjs().Graph;
       module.exports = {
         addBorderNode,
         addDummyNode,
@@ -330,22 +936,13 @@ var dagre = (() => {
         }
         return addDummyNode(g, "border", node, prefix);
       }
-      function splitToChunks(array, chunkSize = CHUNKING_THRESHOLD) {
-        const chunks = [];
-        for (let i = 0; i < array.length; i += chunkSize) {
-          const chunk = array.slice(i, i + chunkSize);
-          chunks.push(chunk);
-        }
-        return chunks;
-      }
-      var CHUNKING_THRESHOLD = 65535;
       function applyWithChunking(fn, argsArray) {
-        if (argsArray.length > CHUNKING_THRESHOLD) {
-          const chunks = splitToChunks(argsArray);
-          return fn.apply(null, chunks.map((chunk) => fn.apply(null, chunk)));
-        } else {
-          return fn.apply(null, argsArray);
+        if (argsArray.length === 0) return fn();
+        let result = argsArray[0];
+        for (let i = 1; i < argsArray.length; i++) {
+          result = fn(result, argsArray[i]);
         }
+        return result;
       }
       function maxRank(g) {
         const nodes = g.nodes();
@@ -603,7 +1200,7 @@ var dagre = (() => {
   var require_feasible_tree = __commonJS({
     "lib/rank/feasible-tree.js"(exports, module) {
       "use strict";
-      var Graph = __require("@dagrejs/graphlib").Graph;
+      var Graph = require_graphlib_cjs().Graph;
       var slack = require_util2().slack;
       module.exports = feasibleTree;
       function feasibleTree(g) {
@@ -659,8 +1256,8 @@ var dagre = (() => {
       var feasibleTree = require_feasible_tree();
       var slack = require_util2().slack;
       var initRank = require_util2().longestPath;
-      var preorder = __require("@dagrejs/graphlib").alg.preorder;
-      var postorder = __require("@dagrejs/graphlib").alg.postorder;
+      var preorder = require_graphlib_cjs().alg.preorder;
+      var postorder = require_graphlib_cjs().alg.postorder;
       var simplify = require_util().simplify;
       module.exports = networkSimplex;
       networkSimplex.initLowLimValues = initLowLimValues;
@@ -1390,7 +1987,7 @@ var dagre = (() => {
   // lib/order/build-layer-graph.js
   var require_build_layer_graph = __commonJS({
     "lib/order/build-layer-graph.js"(exports, module) {
-      var Graph = __require("@dagrejs/graphlib").Graph;
+      var Graph = require_graphlib_cjs().Graph;
       var util = require_util();
       module.exports = buildLayerGraph;
       function buildLayerGraph(g, rank, relationship, nodesWithRank) {
@@ -1462,7 +2059,7 @@ var dagre = (() => {
       var sortSubgraph = require_sort_subgraph();
       var buildLayerGraph = require_build_layer_graph();
       var addSubgraphConstraints = require_add_subgraph_constraints();
-      var Graph = __require("@dagrejs/graphlib").Graph;
+      var Graph = require_graphlib_cjs().Graph;
       var util = require_util();
       module.exports = order;
       function order(g, opts = {}) {
@@ -1537,7 +2134,7 @@ var dagre = (() => {
   var require_bk = __commonJS({
     "lib/position/bk.js"(exports, module) {
       "use strict";
-      var Graph = __require("@dagrejs/graphlib").Graph;
+      var Graph = require_graphlib_cjs().Graph;
       var util = require_util();
       module.exports = {
         positionX,
@@ -1901,7 +2498,7 @@ var dagre = (() => {
       var order = require_order();
       var position = require_position();
       var util = require_util();
-      var Graph = __require("@dagrejs/graphlib").Graph;
+      var Graph = require_graphlib_cjs().Graph;
       module.exports = layout;
       function layout(g, opts = {}) {
         const time = opts.debugTiming ? util.time : util.notime;
@@ -2251,7 +2848,7 @@ var dagre = (() => {
   var require_debug = __commonJS({
     "lib/debug.js"(exports, module) {
       var util = require_util();
-      var Graph = __require("@dagrejs/graphlib").Graph;
+      var Graph = require_graphlib_cjs().Graph;
       module.exports = {
         debugOrdering
       };
@@ -2279,7 +2876,7 @@ var dagre = (() => {
   // lib/version.js
   var require_version = __commonJS({
     "lib/version.js"(exports, module) {
-      module.exports = "2.0.4";
+      module.exports = "2.0.5-pre";
     }
   });
 
@@ -2287,7 +2884,7 @@ var dagre = (() => {
   var require_index = __commonJS({
     "index.js"(exports, module) {
       module.exports = {
-        graphlib: __require("@dagrejs/graphlib"),
+        graphlib: require_graphlib_cjs(),
         layout: require_layout(),
         debug: require_debug(),
         util: {

@@ -41,6 +41,8 @@ async function build() {
     format: 'iife',
     globalName: 'dagre',
     platform: 'browser',
+    // Bundle graphlib into IIFE so it works standalone in browser
+    external: [],
   };
 
   // 3. IIFE/UMD - For direct browser script tag
