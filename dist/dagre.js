@@ -7,612 +7,1396 @@ var dagre = (() => {
   // node_modules/@dagrejs/graphlib/dist/graphlib.cjs.js
   var require_graphlib_cjs = __commonJS({
     "node_modules/@dagrejs/graphlib/dist/graphlib.cjs.js"(exports, module) {
-      var me = Object.defineProperty;
-      var Oe = (s, e, r) => e in s ? me(s, e, { enumerable: true, configurable: true, writable: true, value: r }) : s[e] = r;
-      var c = (s, e) => () => (e || s((e = { exports: {} }).exports, e), e.exports);
-      var l = (s, e, r) => Oe(s, typeof e != "symbol" ? e + "" : e, r);
-      var b = c((dr, T) => {
-        "use strict";
-        var ye = "\0", v = "\0", D = "", O = class {
-          constructor(e) {
-            l(this, "_isDirected", true);
-            l(this, "_isMultigraph", false);
-            l(this, "_isCompound", false);
-            l(this, "_label");
-            l(this, "_defaultNodeLabelFn", () => {
-            });
-            l(this, "_defaultEdgeLabelFn", () => {
-            });
-            l(this, "_nodes", {});
-            l(this, "_in", {});
-            l(this, "_preds", {});
-            l(this, "_out", {});
-            l(this, "_sucs", {});
-            l(this, "_edgeObjs", {});
-            l(this, "_edgeLabels", {});
-            l(this, "_nodeCount", 0);
-            l(this, "_edgeCount", 0);
-            l(this, "_parent");
-            l(this, "_children");
-            e && (this._isDirected = Object.hasOwn(e, "directed") ? e.directed : true, this._isMultigraph = Object.hasOwn(e, "multigraph") ? e.multigraph : false, this._isCompound = Object.hasOwn(e, "compound") ? e.compound : false), this._isCompound && (this._parent = {}, this._children = {}, this._children[v] = {});
-          }
-          isDirected() {
-            return this._isDirected;
-          }
-          isMultigraph() {
-            return this._isMultigraph;
-          }
-          isCompound() {
-            return this._isCompound;
-          }
-          setGraph(e) {
-            return this._label = e, this;
-          }
-          graph() {
-            return this._label;
-          }
-          setDefaultNodeLabel(e) {
-            return this._defaultNodeLabelFn = e, typeof e != "function" && (this._defaultNodeLabelFn = () => e), this;
-          }
-          nodeCount() {
-            return this._nodeCount;
-          }
-          nodes() {
-            return Object.keys(this._nodes);
-          }
-          sources() {
-            var e = this;
-            return this.nodes().filter((r) => Object.keys(e._in[r]).length === 0);
-          }
-          sinks() {
-            var e = this;
-            return this.nodes().filter((r) => Object.keys(e._out[r]).length === 0);
-          }
-          setNodes(e, r) {
-            var t = arguments, i = this;
-            return e.forEach(function(n) {
-              t.length > 1 ? i.setNode(n, r) : i.setNode(n);
-            }), this;
-          }
-          setNode(e, r) {
-            return Object.hasOwn(this._nodes, e) ? (arguments.length > 1 && (this._nodes[e] = r), this) : (this._nodes[e] = arguments.length > 1 ? r : this._defaultNodeLabelFn(e), this._isCompound && (this._parent[e] = v, this._children[e] = {}, this._children[v][e] = true), this._in[e] = {}, this._preds[e] = {}, this._out[e] = {}, this._sucs[e] = {}, ++this._nodeCount, this);
-          }
-          node(e) {
-            return this._nodes[e];
-          }
-          hasNode(e) {
-            return Object.hasOwn(this._nodes, e);
-          }
-          removeNode(e) {
-            var r = this;
-            if (Object.hasOwn(this._nodes, e)) {
-              var t = (i) => r.removeEdge(r._edgeObjs[i]);
-              delete this._nodes[e], this._isCompound && (this._removeFromParentsChildList(e), delete this._parent[e], this.children(e).forEach(function(i) {
-                r.setParent(i);
-              }), delete this._children[e]), Object.keys(this._in[e]).forEach(t), delete this._in[e], delete this._preds[e], Object.keys(this._out[e]).forEach(t), delete this._out[e], delete this._sucs[e], --this._nodeCount;
-            }
-            return this;
-          }
-          setParent(e, r) {
-            if (!this._isCompound) throw new Error("Cannot set parent in a non-compound graph");
-            if (r === void 0) r = v;
-            else {
-              r += "";
-              for (var t = r; t !== void 0; t = this.parent(t)) if (t === e) throw new Error("Setting " + r + " as parent of " + e + " would create a cycle");
-              this.setNode(r);
-            }
-            return this.setNode(e), this._removeFromParentsChildList(e), this._parent[e] = r, this._children[r][e] = true, this;
-          }
-          _removeFromParentsChildList(e) {
-            delete this._children[this._parent[e]][e];
-          }
-          parent(e) {
-            if (this._isCompound) {
-              var r = this._parent[e];
-              if (r !== v) return r;
-            }
-          }
-          children(e = v) {
-            if (this._isCompound) {
-              var r = this._children[e];
-              if (r) return Object.keys(r);
-            } else {
-              if (e === v) return this.nodes();
-              if (this.hasNode(e)) return [];
-            }
-          }
-          predecessors(e) {
-            var r = this._preds[e];
-            if (r) return Object.keys(r);
-          }
-          successors(e) {
-            var r = this._sucs[e];
-            if (r) return Object.keys(r);
-          }
-          neighbors(e) {
-            var r = this.predecessors(e);
-            if (r) {
-              let i = new Set(r);
-              for (var t of this.successors(e)) i.add(t);
-              return Array.from(i.values());
-            }
-          }
-          isLeaf(e) {
-            var r;
-            return this.isDirected() ? r = this.successors(e) : r = this.neighbors(e), r.length === 0;
-          }
-          filterNodes(e) {
-            var r = new this.constructor({ directed: this._isDirected, multigraph: this._isMultigraph, compound: this._isCompound });
-            r.setGraph(this.graph());
-            var t = this;
-            Object.entries(this._nodes).forEach(function([a, o]) {
-              e(a) && r.setNode(a, o);
-            }), Object.values(this._edgeObjs).forEach(function(a) {
-              r.hasNode(a.v) && r.hasNode(a.w) && r.setEdge(a, t.edge(a));
-            });
-            var i = {};
-            function n(a) {
-              var o = t.parent(a);
-              return o === void 0 || r.hasNode(o) ? (i[a] = o, o) : o in i ? i[o] : n(o);
-            }
-            return this._isCompound && r.nodes().forEach((a) => r.setParent(a, n(a))), r;
-          }
-          setDefaultEdgeLabel(e) {
-            return this._defaultEdgeLabelFn = e, typeof e != "function" && (this._defaultEdgeLabelFn = () => e), this;
-          }
-          edgeCount() {
-            return this._edgeCount;
-          }
-          edges() {
-            return Object.values(this._edgeObjs);
-          }
-          setPath(e, r) {
-            var t = this, i = arguments;
-            return e.reduce(function(n, a) {
-              return i.length > 1 ? t.setEdge(n, a, r) : t.setEdge(n, a), a;
-            }), this;
-          }
-          setEdge() {
-            var e, r, t, i, n = false, a = arguments[0];
-            typeof a == "object" && a !== null && "v" in a ? (e = a.v, r = a.w, t = a.name, arguments.length === 2 && (i = arguments[1], n = true)) : (e = a, r = arguments[1], t = arguments[3], arguments.length > 2 && (i = arguments[2], n = true)), e = "" + e, r = "" + r, t !== void 0 && (t = "" + t);
-            var o = g(this._isDirected, e, r, t);
-            if (Object.hasOwn(this._edgeLabels, o)) return n && (this._edgeLabels[o] = i), this;
-            if (t !== void 0 && !this._isMultigraph) throw new Error("Cannot set a named edge when isMultigraph = false");
-            this.setNode(e), this.setNode(r), this._edgeLabels[o] = n ? i : this._defaultEdgeLabelFn(e, r, t);
-            var h = Ne(this._isDirected, e, r, t);
-            return e = h.v, r = h.w, Object.freeze(h), this._edgeObjs[o] = h, L(this._preds[r], e), L(this._sucs[e], r), this._in[r][o] = h, this._out[e][o] = h, this._edgeCount++, this;
-          }
-          edge(e, r, t) {
-            var i = arguments.length === 1 ? m(this._isDirected, arguments[0]) : g(this._isDirected, e, r, t);
-            return this._edgeLabels[i];
-          }
-          edgeAsObj() {
-            let e = this.edge(...arguments);
-            return typeof e != "object" ? { label: e } : e;
-          }
-          hasEdge(e, r, t) {
-            var i = arguments.length === 1 ? m(this._isDirected, arguments[0]) : g(this._isDirected, e, r, t);
-            return Object.hasOwn(this._edgeLabels, i);
-          }
-          removeEdge(e, r, t) {
-            var i = arguments.length === 1 ? m(this._isDirected, arguments[0]) : g(this._isDirected, e, r, t), n = this._edgeObjs[i];
-            return n && (e = n.v, r = n.w, delete this._edgeLabels[i], delete this._edgeObjs[i], F(this._preds[r], e), F(this._sucs[e], r), delete this._in[r][i], delete this._out[e][i], this._edgeCount--), this;
-          }
-          inEdges(e, r) {
-            return this.isDirected() ? this.filterEdges(this._in[e], e, r) : this.nodeEdges(e, r);
-          }
-          outEdges(e, r) {
-            return this.isDirected() ? this.filterEdges(this._out[e], e, r) : this.nodeEdges(e, r);
-          }
-          nodeEdges(e, r) {
-            if (e in this._nodes) return this.filterEdges({ ...this._in[e], ...this._out[e] }, e, r);
-          }
-          filterEdges(e, r, t) {
-            if (e) {
-              var i = Object.values(e);
-              return t ? i.filter(function(n) {
-                return n.v === r && n.w === t || n.v === t && n.w === r;
-              }) : i;
-            }
-          }
+      var graphlib = (() => {
+        var __defProp = Object.defineProperty;
+        var __getOwnPropNames2 = Object.getOwnPropertyNames;
+        var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+        var __commonJS2 = (cb, mod) => function __require() {
+          return mod || (0, cb[__getOwnPropNames2(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
         };
-        function L(s, e) {
-          s[e] ? s[e]++ : s[e] = 1;
-        }
-        function F(s, e) {
-          --s[e] || delete s[e];
-        }
-        function g(s, e, r, t) {
-          var i = "" + e, n = "" + r;
-          if (!s && i > n) {
-            var a = i;
-            i = n, n = a;
-          }
-          return i + D + n + D + (t === void 0 ? ye : t);
-        }
-        function Ne(s, e, r, t) {
-          var i = "" + e, n = "" + r;
-          if (!s && i > n) {
-            var a = i;
-            i = n, n = a;
-          }
-          var o = { v: i, w: n };
-          return t && (o.name = t), o;
-        }
-        function m(s, e) {
-          return g(s, e.v, e.w, e.name);
-        }
-        T.exports = O;
-      });
-      var P = c((cr, A) => {
-        A.exports = "3.0.4";
-      });
-      var S = c((lr, M) => {
-        M.exports = { Graph: b(), version: P() };
-      });
-      var U = c((_r, G) => {
-        var je = b();
-        G.exports = { write: Ie, read: Ce };
-        function Ie(s) {
-          var e = { options: { directed: s.isDirected(), multigraph: s.isMultigraph(), compound: s.isCompound() }, nodes: ke(s), edges: xe(s) };
-          return s.graph() !== void 0 && (e.value = structuredClone(s.graph())), e;
-        }
-        function ke(s) {
-          return s.nodes().map(function(e) {
-            var r = s.node(e), t = s.parent(e), i = { v: e };
-            return r !== void 0 && (i.value = r), t !== void 0 && (i.parent = t), i;
-          });
-        }
-        function xe(s) {
-          return s.edges().map(function(e) {
-            var r = s.edge(e), t = { v: e.v, w: e.w };
-            return e.name !== void 0 && (t.name = e.name), r !== void 0 && (t.value = r), t;
-          });
-        }
-        function Ce(s) {
-          var e = new je(s.options).setGraph(s.value);
-          return s.nodes.forEach(function(r) {
-            e.setNode(r.v, r.value), r.parent && e.setParent(r.v, r.parent);
-          }), s.edges.forEach(function(r) {
-            e.setEdge({ v: r.v, w: r.w, name: r.name }, r.value);
-          }), e;
-        }
-      });
-      var y = c((pr, W) => {
-        W.exports = De;
-        var qe = () => 1;
-        function De(s, e, r, t) {
-          return Le(s, String(e), r || qe, t || function(i) {
-            return s.outEdges(i);
-          });
-        }
-        function Le(s, e, r, t) {
-          var i = {}, n = true, a = 0, o = s.nodes(), h = function(f) {
-            var p = r(f);
-            i[f.v].distance + p < i[f.w].distance && (i[f.w] = { distance: i[f.v].distance + p, predecessor: f.v }, n = true);
-          }, u = function() {
-            o.forEach(function(f) {
-              t(f).forEach(function(p) {
-                var q = p.v === f ? p.v : p.w, we = q === p.v ? p.w : p.v;
-                h({ v: q, w: we });
-              });
-            });
-          };
-          o.forEach(function(f) {
-            var p = f === e ? 0 : Number.POSITIVE_INFINITY;
-            i[f] = { distance: p };
-          });
-          for (var d = o.length, _ = 1; _ < d && (n = false, a++, u(), !!n); _++) ;
-          if (a === d - 1 && (n = false, u(), n)) throw new Error("The graph contains a negative weight cycle");
-          return i;
-        }
-      });
-      var z = c((vr, Y) => {
-        Y.exports = Fe;
-        function Fe(s) {
-          var e = {}, r = [], t;
-          function i(n) {
-            Object.hasOwn(e, n) || (e[n] = true, t.push(n), s.successors(n).forEach(i), s.predecessors(n).forEach(i));
-          }
-          return s.nodes().forEach(function(n) {
-            t = [], i(n), t.length && r.push(t);
-          }), r;
-        }
-      });
-      var j = c((gr, V) => {
-        var N = class {
-          constructor() {
-            l(this, "_arr", []);
-            l(this, "_keyIndices", {});
-          }
-          size() {
-            return this._arr.length;
-          }
-          keys() {
-            return this._arr.map(function(e) {
-              return e.key;
-            });
-          }
-          has(e) {
-            return Object.hasOwn(this._keyIndices, e);
-          }
-          priority(e) {
-            var r = this._keyIndices[e];
-            if (r !== void 0) return this._arr[r].priority;
-          }
-          min() {
-            if (this.size() === 0) throw new Error("Queue underflow");
-            return this._arr[0].key;
-          }
-          add(e, r) {
-            var t = this._keyIndices;
-            if (e = String(e), !Object.hasOwn(t, e)) {
-              var i = this._arr, n = i.length;
-              return t[e] = n, i.push({ key: e, priority: r }), this._decrease(n), true;
-            }
-            return false;
-          }
-          removeMin() {
-            this._swap(0, this._arr.length - 1);
-            var e = this._arr.pop();
-            return delete this._keyIndices[e.key], this._heapify(0), e.key;
-          }
-          decrease(e, r) {
-            var t = this._keyIndices[e];
-            if (r > this._arr[t].priority) throw new Error("New priority is greater than current priority. Key: " + e + " Old: " + this._arr[t].priority + " New: " + r);
-            this._arr[t].priority = r, this._decrease(t);
-          }
-          _heapify(e) {
-            var r = this._arr, t = 2 * e, i = t + 1, n = e;
-            t < r.length && (n = r[t].priority < r[n].priority ? t : n, i < r.length && (n = r[i].priority < r[n].priority ? i : n), n !== e && (this._swap(e, n), this._heapify(n)));
-          }
-          _decrease(e) {
-            for (var r = this._arr, t = r[e].priority, i; e !== 0 && (i = e >> 1, !(r[i].priority < t)); ) this._swap(e, i), e = i;
-          }
-          _swap(e, r) {
-            var t = this._arr, i = this._keyIndices, n = t[e], a = t[r];
-            t[e] = a, t[r] = n, i[a.key] = e, i[n.key] = r;
-          }
-        };
-        V.exports = N;
-      });
-      var w = c((br, H) => {
-        var Te = j();
-        H.exports = Pe;
-        var Ae = () => 1;
-        function Pe(s, e, r, t) {
-          var i = function(n) {
-            return s.outEdges(n);
-          };
-          return Me(s, String(e), r || Ae, t || i);
-        }
-        function Me(s, e, r, t) {
-          var i = {}, n = new Te(), a, o, h = function(u) {
-            var d = u.v !== a ? u.v : u.w, _ = i[d], f = r(u), p = o.distance + f;
-            if (f < 0) throw new Error("dijkstra does not allow negative edge weights. Bad edge: " + u + " Weight: " + f);
-            p < _.distance && (_.distance = p, _.predecessor = a, n.decrease(d, p));
-          };
-          for (s.nodes().forEach(function(u) {
-            var d = u === e ? 0 : Number.POSITIVE_INFINITY;
-            i[u] = { distance: d }, n.add(u, d);
-          }); n.size() > 0 && (a = n.removeMin(), o = i[a], o.distance !== Number.POSITIVE_INFINITY); ) t(a).forEach(h);
-          return i;
-        }
-      });
-      var R = c((wr, K) => {
-        var Se = w();
-        K.exports = Ge;
-        function Ge(s, e, r) {
-          return s.nodes().reduce(function(t, i) {
-            return t[i] = Se(s, i, e, r), t;
-          }, {});
-        }
-      });
-      var Q = c((mr, B) => {
-        B.exports = Ue;
-        function Ue(s, e, r) {
-          if (s[e].predecessor !== void 0) throw new Error("Invalid source vertex");
-          if (s[r].predecessor === void 0 && r !== e) throw new Error("Invalid destination vertex");
-          return { weight: s[r].distance, path: We(s, e, r) };
-        }
-        function We(s, e, r) {
-          for (var t = [], i = r; i !== e; ) t.push(i), i = s[i].predecessor;
-          return t.push(e), t.reverse();
-        }
-      });
-      var I = c((Or, J) => {
-        J.exports = Ye;
-        function Ye(s) {
-          var e = 0, r = [], t = {}, i = [];
-          function n(a) {
-            var o = t[a] = { onStack: true, lowlink: e, index: e++ };
-            if (r.push(a), s.successors(a).forEach(function(d) {
-              Object.hasOwn(t, d) ? t[d].onStack && (o.lowlink = Math.min(o.lowlink, t[d].index)) : (n(d), o.lowlink = Math.min(o.lowlink, t[d].lowlink));
-            }), o.lowlink === o.index) {
-              var h = [], u;
-              do
-                u = r.pop(), t[u].onStack = false, h.push(u);
-              while (a !== u);
-              i.push(h);
-            }
-          }
-          return s.nodes().forEach(function(a) {
-            Object.hasOwn(t, a) || n(a);
-          }), i;
-        }
-      });
-      var Z = c((yr, X) => {
-        var ze = I();
-        X.exports = Ve;
-        function Ve(s) {
-          return ze(s).filter(function(e) {
-            return e.length > 1 || e.length === 1 && s.hasEdge(e[0], e[0]);
-          });
-        }
-      });
-      var ee = c((Nr, $) => {
-        $.exports = Ke;
-        var He = () => 1;
-        function Ke(s, e, r) {
-          return Re(s, e || He, r || function(t) {
-            return s.outEdges(t);
-          });
-        }
-        function Re(s, e, r) {
-          var t = {}, i = s.nodes();
-          return i.forEach(function(n) {
-            t[n] = {}, t[n][n] = { distance: 0 }, i.forEach(function(a) {
-              n !== a && (t[n][a] = { distance: Number.POSITIVE_INFINITY });
-            }), r(n).forEach(function(a) {
-              var o = a.v === n ? a.w : a.v, h = e(a);
-              t[n][o] = { distance: h, predecessor: n };
-            });
-          }), i.forEach(function(n) {
-            var a = t[n];
-            i.forEach(function(o) {
-              var h = t[o];
-              i.forEach(function(u) {
-                var d = h[n], _ = a[u], f = h[u], p = d.distance + _.distance;
-                p < f.distance && (f.distance = p, f.predecessor = _.predecessor);
-              });
-            });
-          }), t;
-        }
-      });
-      var k = c((jr, te) => {
-        function re(s) {
-          var e = {}, r = {}, t = [];
-          function i(n) {
-            if (Object.hasOwn(r, n)) throw new E();
-            Object.hasOwn(e, n) || (r[n] = true, e[n] = true, s.predecessors(n).forEach(i), delete r[n], t.push(n));
-          }
-          if (s.sinks().forEach(i), Object.keys(e).length !== s.nodeCount()) throw new E();
-          return t;
-        }
-        var E = class extends Error {
-          constructor() {
-            super(...arguments);
-          }
-        };
-        te.exports = re;
-        re.CycleException = E;
-      });
-      var ne = c((Ir, se) => {
-        var ie = k();
-        se.exports = Be;
-        function Be(s) {
-          try {
-            ie(s);
-          } catch (e) {
-            if (e instanceof ie.CycleException) return false;
-            throw e;
-          }
-          return true;
-        }
-      });
-      var x = c((kr, ae) => {
-        ae.exports = Qe;
-        function Qe(s, e, r, t, i) {
-          Array.isArray(e) || (e = [e]);
-          var n = (s.isDirected() ? s.successors : s.neighbors).bind(s), a = {};
-          return e.forEach(function(o) {
-            if (!s.hasNode(o)) throw new Error("Graph does not have node: " + o);
-            i = Je(s, o, r === "post", a, n, t, i);
-          }), i;
-        }
-        function Je(s, e, r, t, i, n, a) {
-          if (Object.hasOwn(t, e)) return a;
-          var o = i(e), h = [{ v: e, nb: o, childIdx: 0 }];
-          for (t[e] = true, r || (a = n(a, e)); h.length > 0; ) {
-            for (var u = h[h.length - 1], d = false; u.childIdx < u.nb.length; ) {
-              var _ = u.nb[u.childIdx++];
-              if (!Object.hasOwn(t, _)) {
-                t[_] = true, r || (a = n(a, _));
-                var f = i(_);
-                h.push({ v: _, nb: f, childIdx: 0 }), d = true;
-                break;
+        var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
+        var require_graph = __commonJS2({
+          "lib/graph.js"(exports2, module2) {
+            "use strict";
+            var DEFAULT_EDGE_NAME = "\0";
+            var GRAPH_NODE = "\0";
+            var EDGE_KEY_DELIM = "";
+            var Graph = class {
+              constructor(opts) {
+                __publicField(this, "_isDirected", true);
+                __publicField(this, "_isMultigraph", false);
+                __publicField(this, "_isCompound", false);
+                __publicField(this, "_label");
+                __publicField(this, "_defaultNodeLabelFn", () => void 0);
+                __publicField(this, "_defaultEdgeLabelFn", () => void 0);
+                __publicField(this, "_nodes", {});
+                __publicField(this, "_in", {});
+                __publicField(this, "_preds", {});
+                __publicField(this, "_out", {});
+                __publicField(this, "_sucs", {});
+                __publicField(this, "_edgeObjs", {});
+                __publicField(this, "_edgeLabels", {});
+                __publicField(this, "_nodeCount", 0);
+                __publicField(this, "_edgeCount", 0);
+                __publicField(this, "_parent");
+                __publicField(this, "_children");
+                if (opts) {
+                  this._isDirected = Object.hasOwn(opts, "directed") ? opts.directed : true;
+                  this._isMultigraph = Object.hasOwn(opts, "multigraph") ? opts.multigraph : false;
+                  this._isCompound = Object.hasOwn(opts, "compound") ? opts.compound : false;
+                }
+                if (this._isCompound) {
+                  this._parent = {};
+                  this._children = {};
+                  this._children[GRAPH_NODE] = {};
+                }
+              }
+              /* === Graph functions ========= */
+              /**
+               * Whether graph was created with 'directed' flag set to true or not.
+               */
+              isDirected() {
+                return this._isDirected;
+              }
+              /**
+               * Whether graph was created with 'multigraph' flag set to true or not.
+               */
+              isMultigraph() {
+                return this._isMultigraph;
+              }
+              /**
+               * Whether graph was created with 'compound' flag set to true or not.
+               */
+              isCompound() {
+                return this._isCompound;
+              }
+              /**
+               * Sets the label of the graph.
+               */
+              setGraph(label) {
+                this._label = label;
+                return this;
+              }
+              /**
+               * Gets the graph label.
+               */
+              graph() {
+                return this._label;
+              }
+              /* === Node functions ========== */
+              /**
+               * Sets the default node label. If newDefault is a function, it will be
+               * invoked ach time when setting a label for a node. Otherwise, this label
+               * will be assigned as default label in case if no label was specified while
+               * setting a node.
+               * Complexity: O(1).
+               */
+              setDefaultNodeLabel(newDefault) {
+                this._defaultNodeLabelFn = newDefault;
+                if (typeof newDefault !== "function") {
+                  this._defaultNodeLabelFn = () => newDefault;
+                }
+                return this;
+              }
+              /**
+               * Gets the number of nodes in the graph.
+               * Complexity: O(1).
+               */
+              nodeCount() {
+                return this._nodeCount;
+              }
+              /**
+               * Gets all nodes of the graph. Note, the in case of compound graph subnodes are
+               * not included in list.
+               * Complexity: O(1).
+               */
+              nodes() {
+                return Object.keys(this._nodes);
+              }
+              /**
+               * Gets list of nodes without in-edges.
+               * Complexity: O(|V|).
+               */
+              sources() {
+                var self = this;
+                return this.nodes().filter((v) => Object.keys(self._in[v]).length === 0);
+              }
+              /**
+               * Gets list of nodes without out-edges.
+               * Complexity: O(|V|).
+               */
+              sinks() {
+                var self = this;
+                return this.nodes().filter((v) => Object.keys(self._out[v]).length === 0);
+              }
+              /**
+               * Invokes setNode method for each node in names list.
+               * Complexity: O(|names|).
+               */
+              setNodes(vs, value) {
+                var args = arguments;
+                var self = this;
+                vs.forEach(function(v) {
+                  if (args.length > 1) {
+                    self.setNode(v, value);
+                  } else {
+                    self.setNode(v);
+                  }
+                });
+                return this;
+              }
+              /**
+               * Creates or updates the value for the node v in the graph. If label is supplied
+               * it is set as the value for the node. If label is not supplied and the node was
+               * created by this call then the default node label will be assigned.
+               * Complexity: O(1).
+               */
+              setNode(v, value) {
+                if (Object.hasOwn(this._nodes, v)) {
+                  if (arguments.length > 1) {
+                    this._nodes[v] = value;
+                  }
+                  return this;
+                }
+                this._nodes[v] = arguments.length > 1 ? value : this._defaultNodeLabelFn(v);
+                if (this._isCompound) {
+                  this._parent[v] = GRAPH_NODE;
+                  this._children[v] = {};
+                  this._children[GRAPH_NODE][v] = true;
+                }
+                this._in[v] = {};
+                this._preds[v] = {};
+                this._out[v] = {};
+                this._sucs[v] = {};
+                ++this._nodeCount;
+                return this;
+              }
+              /**
+               * Gets the label of node with specified name.
+               * Complexity: O(|V|).
+               */
+              node(v) {
+                return this._nodes[v];
+              }
+              /**
+               * Detects whether graph has a node with specified name or not.
+               */
+              hasNode(v) {
+                return Object.hasOwn(this._nodes, v);
+              }
+              /**
+               * Remove the node with the name from the graph or do nothing if the node is not in
+               * the graph. If the node was removed this function also removes any incident
+               * edges.
+               * Complexity: O(1).
+               */
+              removeNode(v) {
+                var self = this;
+                if (Object.hasOwn(this._nodes, v)) {
+                  var removeEdge = (e) => self.removeEdge(self._edgeObjs[e]);
+                  delete this._nodes[v];
+                  if (this._isCompound) {
+                    this._removeFromParentsChildList(v);
+                    delete this._parent[v];
+                    this.children(v).forEach(function(child) {
+                      self.setParent(child);
+                    });
+                    delete this._children[v];
+                  }
+                  Object.keys(this._in[v]).forEach(removeEdge);
+                  delete this._in[v];
+                  delete this._preds[v];
+                  Object.keys(this._out[v]).forEach(removeEdge);
+                  delete this._out[v];
+                  delete this._sucs[v];
+                  --this._nodeCount;
+                }
+                return this;
+              }
+              /**
+               * Sets node p as a parent for node v if it is defined, or removes the
+               * parent for v if p is undefined. Method throws an exception in case of
+               * invoking it in context of noncompound graph.
+               * Average-case complexity: O(1).
+               */
+              setParent(v, parent) {
+                if (!this._isCompound) {
+                  throw new Error("Cannot set parent in a non-compound graph");
+                }
+                if (parent === void 0) {
+                  parent = GRAPH_NODE;
+                } else {
+                  parent += "";
+                  for (var ancestor = parent; ancestor !== void 0; ancestor = this.parent(ancestor)) {
+                    if (ancestor === v) {
+                      throw new Error("Setting " + parent + " as parent of " + v + " would create a cycle");
+                    }
+                  }
+                  this.setNode(parent);
+                }
+                this.setNode(v);
+                this._removeFromParentsChildList(v);
+                this._parent[v] = parent;
+                this._children[parent][v] = true;
+                return this;
+              }
+              _removeFromParentsChildList(v) {
+                delete this._children[this._parent[v]][v];
+              }
+              /**
+               * Gets parent node for node v.
+               * Complexity: O(1).
+               */
+              parent(v) {
+                if (this._isCompound) {
+                  var parent = this._parent[v];
+                  if (parent !== GRAPH_NODE) {
+                    return parent;
+                  }
+                }
+              }
+              /**
+               * Gets list of direct children of node v.
+               * Complexity: O(1).
+               */
+              children(v = GRAPH_NODE) {
+                if (this._isCompound) {
+                  var children = this._children[v];
+                  if (children) {
+                    return Object.keys(children);
+                  }
+                } else if (v === GRAPH_NODE) {
+                  return this.nodes();
+                } else if (this.hasNode(v)) {
+                  return [];
+                }
+              }
+              /**
+               * Return all nodes that are predecessors of the specified node or undefined if node v is not in
+               * the graph. Behavior is undefined for undirected graphs - use neighbors instead.
+               * Complexity: O(|V|).
+               */
+              predecessors(v) {
+                var predsV = this._preds[v];
+                if (predsV) {
+                  return Object.keys(predsV);
+                }
+              }
+              /**
+               * Return all nodes that are successors of the specified node or undefined if node v is not in
+               * the graph. Behavior is undefined for undirected graphs - use neighbors instead.
+               * Complexity: O(|V|).
+               */
+              successors(v) {
+                var sucsV = this._sucs[v];
+                if (sucsV) {
+                  return Object.keys(sucsV);
+                }
+              }
+              /**
+               * Return all nodes that are predecessors or successors of the specified node or undefined if
+               * node v is not in the graph.
+               * Complexity: O(|V|).
+               */
+              neighbors(v) {
+                var preds = this.predecessors(v);
+                if (preds) {
+                  const union = new Set(preds);
+                  for (var succ of this.successors(v)) {
+                    union.add(succ);
+                  }
+                  return Array.from(union.values());
+                }
+              }
+              isLeaf(v) {
+                var neighbors;
+                if (this.isDirected()) {
+                  neighbors = this.successors(v);
+                } else {
+                  neighbors = this.neighbors(v);
+                }
+                return neighbors.length === 0;
+              }
+              /**
+               * Creates new graph with nodes filtered via filter. Edges incident to rejected node
+               * are also removed. In case of compound graph, if parent is rejected by filter,
+               * than all its children are rejected too.
+               * Average-case complexity: O(|E|+|V|).
+               */
+              filterNodes(filter) {
+                var copy = new this.constructor({
+                  directed: this._isDirected,
+                  multigraph: this._isMultigraph,
+                  compound: this._isCompound
+                });
+                copy.setGraph(this.graph());
+                var self = this;
+                Object.entries(this._nodes).forEach(function([v, value]) {
+                  if (filter(v)) {
+                    copy.setNode(v, value);
+                  }
+                });
+                Object.values(this._edgeObjs).forEach(function(e) {
+                  if (copy.hasNode(e.v) && copy.hasNode(e.w)) {
+                    copy.setEdge(e, self.edge(e));
+                  }
+                });
+                var parents = {};
+                function findParent(v) {
+                  var parent = self.parent(v);
+                  if (parent === void 0 || copy.hasNode(parent)) {
+                    parents[v] = parent;
+                    return parent;
+                  } else if (parent in parents) {
+                    return parents[parent];
+                  } else {
+                    var chain = [v, parent];
+                    var cur = parent;
+                    while (true) {
+                      cur = self.parent(cur);
+                      if (cur === void 0 || copy.hasNode(cur)) {
+                        for (var ci = 0; ci < chain.length; ci++) parents[chain[ci]] = cur;
+                        return cur;
+                      } else if (cur in parents) {
+                        var resolved = parents[cur];
+                        for (var ci2 = 0; ci2 < chain.length; ci2++) parents[chain[ci2]] = resolved;
+                        return resolved;
+                      }
+                      chain.push(cur);
+                    }
+                  }
+                }
+                if (this._isCompound) {
+                  copy.nodes().forEach((v) => copy.setParent(v, findParent(v)));
+                }
+                return copy;
+              }
+              /* === Edge functions ========== */
+              /**
+               * Sets the default edge label or factory function. This label will be
+               * assigned as default label in case if no label was specified while setting
+               * an edge or this function will be invoked each time when setting an edge
+               * with no label specified and returned value * will be used as a label for edge.
+               * Complexity: O(1).
+               */
+              setDefaultEdgeLabel(newDefault) {
+                this._defaultEdgeLabelFn = newDefault;
+                if (typeof newDefault !== "function") {
+                  this._defaultEdgeLabelFn = () => newDefault;
+                }
+                return this;
+              }
+              /**
+               * Gets the number of edges in the graph.
+               * Complexity: O(1).
+               */
+              edgeCount() {
+                return this._edgeCount;
+              }
+              /**
+               * Gets edges of the graph. In case of compound graph subgraphs are not considered.
+               * Complexity: O(|E|).
+               */
+              edges() {
+                return Object.values(this._edgeObjs);
+              }
+              /**
+               * Establish an edges path over the nodes in nodes list. If some edge is already
+               * exists, it will update its label, otherwise it will create an edge between pair
+               * of nodes with label provided or default label if no label provided.
+               * Complexity: O(|nodes|).
+               */
+              setPath(vs, value) {
+                var self = this;
+                var args = arguments;
+                vs.reduce(function(v, w) {
+                  if (args.length > 1) {
+                    self.setEdge(v, w, value);
+                  } else {
+                    self.setEdge(v, w);
+                  }
+                  return w;
+                });
+                return this;
+              }
+              /**
+               * Creates or updates the label for the edge (v, w) with the optionally supplied
+               * name. If label is supplied it is set as the value for the edge. If label is not
+               * supplied and the edge was created by this call then the default edge label will
+               * be assigned. The name parameter is only useful with multigraphs.
+               */
+              setEdge() {
+                var v, w, name, value;
+                var valueSpecified = false;
+                var arg0 = arguments[0];
+                if (typeof arg0 === "object" && arg0 !== null && "v" in arg0) {
+                  v = arg0.v;
+                  w = arg0.w;
+                  name = arg0.name;
+                  if (arguments.length === 2) {
+                    value = arguments[1];
+                    valueSpecified = true;
+                  }
+                } else {
+                  v = arg0;
+                  w = arguments[1];
+                  name = arguments[3];
+                  if (arguments.length > 2) {
+                    value = arguments[2];
+                    valueSpecified = true;
+                  }
+                }
+                v = "" + v;
+                w = "" + w;
+                if (name !== void 0) {
+                  name = "" + name;
+                }
+                var e = edgeArgsToId(this._isDirected, v, w, name);
+                if (Object.hasOwn(this._edgeLabels, e)) {
+                  if (valueSpecified) {
+                    this._edgeLabels[e] = value;
+                  }
+                  return this;
+                }
+                if (name !== void 0 && !this._isMultigraph) {
+                  throw new Error("Cannot set a named edge when isMultigraph = false");
+                }
+                this.setNode(v);
+                this.setNode(w);
+                this._edgeLabels[e] = valueSpecified ? value : this._defaultEdgeLabelFn(v, w, name);
+                var edgeObj = edgeArgsToObj(this._isDirected, v, w, name);
+                v = edgeObj.v;
+                w = edgeObj.w;
+                Object.freeze(edgeObj);
+                this._edgeObjs[e] = edgeObj;
+                incrementOrInitEntry(this._preds[w], v);
+                incrementOrInitEntry(this._sucs[v], w);
+                this._in[w][e] = edgeObj;
+                this._out[v][e] = edgeObj;
+                this._edgeCount++;
+                return this;
+              }
+              /**
+               * Gets the label for the specified edge.
+               * Complexity: O(1).
+               */
+              edge(v, w, name) {
+                var e = arguments.length === 1 ? edgeObjToId(this._isDirected, arguments[0]) : edgeArgsToId(this._isDirected, v, w, name);
+                return this._edgeLabels[e];
+              }
+              /**
+               * Gets the label for the specified edge and converts it to an object.
+               * Complexity: O(1)
+               */
+              edgeAsObj() {
+                const edge = this.edge(...arguments);
+                if (typeof edge !== "object") {
+                  return { label: edge };
+                }
+                return edge;
+              }
+              /**
+               * Detects whether the graph contains specified edge or not. No subgraphs are considered.
+               * Complexity: O(1).
+               */
+              hasEdge(v, w, name) {
+                var e = arguments.length === 1 ? edgeObjToId(this._isDirected, arguments[0]) : edgeArgsToId(this._isDirected, v, w, name);
+                return Object.hasOwn(this._edgeLabels, e);
+              }
+              /**
+               * Removes the specified edge from the graph. No subgraphs are considered.
+               * Complexity: O(1).
+               */
+              removeEdge(v, w, name) {
+                var e = arguments.length === 1 ? edgeObjToId(this._isDirected, arguments[0]) : edgeArgsToId(this._isDirected, v, w, name);
+                var edge = this._edgeObjs[e];
+                if (edge) {
+                  v = edge.v;
+                  w = edge.w;
+                  delete this._edgeLabels[e];
+                  delete this._edgeObjs[e];
+                  decrementOrRemoveEntry(this._preds[w], v);
+                  decrementOrRemoveEntry(this._sucs[v], w);
+                  delete this._in[w][e];
+                  delete this._out[v][e];
+                  this._edgeCount--;
+                }
+                return this;
+              }
+              /**
+               * Return all edges that point to the node v. Optionally filters those edges down to just those
+               * coming from node u. Behavior is undefined for undirected graphs - use nodeEdges instead.
+               * Complexity: O(|E|).
+               */
+              inEdges(v, u) {
+                if (this.isDirected()) {
+                  return this.filterEdges(this._in[v], v, u);
+                }
+                return this.nodeEdges(v, u);
+              }
+              /**
+               * Return all edges that are pointed at by node v. Optionally filters those edges down to just
+               * those point to w. Behavior is undefined for undirected graphs - use nodeEdges instead.
+               * Complexity: O(|E|).
+               */
+              outEdges(v, w) {
+                if (this.isDirected()) {
+                  return this.filterEdges(this._out[v], v, w);
+                }
+                return this.nodeEdges(v, w);
+              }
+              /**
+               * Returns all edges to or from node v regardless of direction. Optionally filters those edges
+               * down to just those between nodes v and w regardless of direction.
+               * Complexity: O(|E|).
+               */
+              nodeEdges(v, w) {
+                if (v in this._nodes) {
+                  return this.filterEdges({ ...this._in[v], ...this._out[v] }, v, w);
+                }
+              }
+              filterEdges(setV, localEdge, remoteEdge) {
+                if (!setV) {
+                  return;
+                }
+                var edges = Object.values(setV);
+                if (!remoteEdge) {
+                  return edges;
+                }
+                return edges.filter(function(edge) {
+                  return edge.v === localEdge && edge.w === remoteEdge || edge.v === remoteEdge && edge.w === localEdge;
+                });
+              }
+            };
+            function incrementOrInitEntry(map, k) {
+              if (map[k]) {
+                map[k]++;
+              } else {
+                map[k] = 1;
               }
             }
-            d || (r && (a = n(a, u.v)), h.pop());
+            function decrementOrRemoveEntry(map, k) {
+              if (!--map[k]) {
+                delete map[k];
+              }
+            }
+            function edgeArgsToId(isDirected, v_, w_, name) {
+              var v = "" + v_;
+              var w = "" + w_;
+              if (!isDirected && v > w) {
+                var tmp = v;
+                v = w;
+                w = tmp;
+              }
+              return v + EDGE_KEY_DELIM + w + EDGE_KEY_DELIM + (name === void 0 ? DEFAULT_EDGE_NAME : name);
+            }
+            function edgeArgsToObj(isDirected, v_, w_, name) {
+              var v = "" + v_;
+              var w = "" + w_;
+              if (!isDirected && v > w) {
+                var tmp = v;
+                v = w;
+                w = tmp;
+              }
+              var edgeObj = { v, w };
+              if (name) {
+                edgeObj.name = name;
+              }
+              return edgeObj;
+            }
+            function edgeObjToId(isDirected, edgeObj) {
+              return edgeArgsToId(isDirected, edgeObj.v, edgeObj.w, edgeObj.name);
+            }
+            module2.exports = Graph;
           }
-          return a;
-        }
-      });
-      var C = c((xr, oe) => {
-        var Xe = x();
-        oe.exports = Ze;
-        function Ze(s, e, r) {
-          return Xe(s, e, r, function(t, i) {
-            return t.push(i), t;
-          }, []);
-        }
-      });
-      var he = c((Cr, ue) => {
-        var $e = C();
-        ue.exports = er;
-        function er(s, e) {
-          return $e(s, e, "post");
-        }
-      });
-      var fe = c((qr, de) => {
-        var rr = C();
-        de.exports = tr;
-        function tr(s, e) {
-          return rr(s, e, "pre");
-        }
-      });
-      var le = c((Dr, ce) => {
-        var ir = b(), sr = j();
-        ce.exports = nr;
-        function nr(s, e) {
-          var r = new ir(), t = {}, i = new sr(), n;
-          function a(h) {
-            var u = h.v === n ? h.w : h.v, d = i.priority(u);
-            if (d !== void 0) {
-              var _ = e(h);
-              _ < d && (t[u] = n, i.decrease(u, _));
+        });
+        var require_version2 = __commonJS2({
+          "lib/version.js"(exports2, module2) {
+            module2.exports = "3.0.4";
+          }
+        });
+        var require_lib = __commonJS2({
+          "lib/index.js"(exports2, module2) {
+            module2.exports = {
+              Graph: require_graph(),
+              version: require_version2()
+            };
+          }
+        });
+        var require_json = __commonJS2({
+          "lib/json.js"(exports2, module2) {
+            var Graph = require_graph();
+            module2.exports = {
+              write,
+              read
+            };
+            function write(g) {
+              var json = {
+                options: {
+                  directed: g.isDirected(),
+                  multigraph: g.isMultigraph(),
+                  compound: g.isCompound()
+                },
+                nodes: writeNodes(g),
+                edges: writeEdges(g)
+              };
+              if (g.graph() !== void 0) {
+                json.value = structuredClone(g.graph());
+              }
+              return json;
+            }
+            function writeNodes(g) {
+              return g.nodes().map(function(v) {
+                var nodeValue = g.node(v);
+                var parent = g.parent(v);
+                var node = { v };
+                if (nodeValue !== void 0) {
+                  node.value = nodeValue;
+                }
+                if (parent !== void 0) {
+                  node.parent = parent;
+                }
+                return node;
+              });
+            }
+            function writeEdges(g) {
+              return g.edges().map(function(e) {
+                var edgeValue = g.edge(e);
+                var edge = { v: e.v, w: e.w };
+                if (e.name !== void 0) {
+                  edge.name = e.name;
+                }
+                if (edgeValue !== void 0) {
+                  edge.value = edgeValue;
+                }
+                return edge;
+              });
+            }
+            function read(json) {
+              var g = new Graph(json.options).setGraph(json.value);
+              json.nodes.forEach(function(entry) {
+                g.setNode(entry.v, entry.value);
+                if (entry.parent) {
+                  g.setParent(entry.v, entry.parent);
+                }
+              });
+              json.edges.forEach(function(entry) {
+                g.setEdge({ v: entry.v, w: entry.w, name: entry.name }, entry.value);
+              });
+              return g;
             }
           }
-          if (s.nodeCount() === 0) return r;
-          s.nodes().forEach(function(h) {
-            i.add(h, Number.POSITIVE_INFINITY), r.setNode(h);
-          }), i.decrease(s.nodes()[0], 0);
-          for (var o = false; i.size() > 0; ) {
-            if (n = i.removeMin(), Object.hasOwn(t, n)) r.setEdge(n, t[n]);
-            else {
-              if (o) throw new Error("Input graph is not connected: " + s);
-              o = true;
+        });
+        var require_bellman_ford = __commonJS2({
+          "lib/alg/bellman-ford.js"(exports2, module2) {
+            module2.exports = bellmanFord;
+            var DEFAULT_WEIGHT_FUNC = () => 1;
+            function bellmanFord(g, source, weightFn, edgeFn) {
+              return runBellmanFord(
+                g,
+                String(source),
+                weightFn || DEFAULT_WEIGHT_FUNC,
+                edgeFn || function(v) {
+                  return g.outEdges(v);
+                }
+              );
             }
-            s.nodeEdges(n).forEach(a);
-          }
-          return r;
-        }
-      });
-      var ve = c((Lr, pe) => {
-        var _e = w(), ar = y();
-        pe.exports = or;
-        function or(s, e, r, t) {
-          return ur(s, e, r, t || function(i) {
-            return s.outEdges(i);
-          });
-        }
-        function ur(s, e, r, t) {
-          if (r === void 0) return _e(s, e, r, t);
-          for (var i = false, n = s.nodes(), a = 0; a < n.length; a++) {
-            for (var o = t(n[a]), h = 0; h < o.length; h++) {
-              var u = o[h], d = u.v === n[a] ? u.v : u.w, _ = d === u.v ? u.w : u.v;
-              r({ v: d, w: _ }) < 0 && (i = true);
+            function runBellmanFord(g, source, weightFn, edgeFn) {
+              var results = {}, didADistanceUpgrade = true, iterations = 0, nodes = g.nodes();
+              var relaxEdge = function(edge) {
+                var edgeWeight = weightFn(edge);
+                if (results[edge.v].distance + edgeWeight < results[edge.w].distance) {
+                  results[edge.w] = {
+                    distance: results[edge.v].distance + edgeWeight,
+                    predecessor: edge.v
+                  };
+                  didADistanceUpgrade = true;
+                }
+              };
+              var relaxAllEdges = function() {
+                nodes.forEach(function(vertex) {
+                  edgeFn(vertex).forEach(function(edge) {
+                    var inVertex = edge.v === vertex ? edge.v : edge.w;
+                    var outVertex = inVertex === edge.v ? edge.w : edge.v;
+                    relaxEdge({ v: inVertex, w: outVertex });
+                  });
+                });
+              };
+              nodes.forEach(function(v) {
+                var distance = v === source ? 0 : Number.POSITIVE_INFINITY;
+                results[v] = { distance };
+              });
+              var numberOfNodes = nodes.length;
+              for (var i = 1; i < numberOfNodes; i++) {
+                didADistanceUpgrade = false;
+                iterations++;
+                relaxAllEdges();
+                if (!didADistanceUpgrade) {
+                  break;
+                }
+              }
+              if (iterations === numberOfNodes - 1) {
+                didADistanceUpgrade = false;
+                relaxAllEdges();
+                if (didADistanceUpgrade) {
+                  throw new Error("The graph contains a negative weight cycle");
+                }
+              }
+              return results;
             }
-            if (i) return ar(s, e, r, t);
           }
-          return _e(s, e, r, t);
-        }
-      });
-      var Ee = c((Fr, ge) => {
-        ge.exports = { bellmanFord: y(), components: z(), dijkstra: w(), dijkstraAll: R(), extractPath: Q(), findCycles: Z(), floydWarshall: ee(), isAcyclic: ne(), postorder: he(), preorder: fe(), prim: le(), shortestPaths: ve(), reduce: x(), tarjan: I(), topsort: k() };
-      });
-      var be = S();
-      module.exports = { Graph: be.Graph, json: U(), alg: Ee(), version: be.version };
+        });
+        var require_components = __commonJS2({
+          "lib/alg/components.js"(exports2, module2) {
+            module2.exports = components;
+            function components(g) {
+              var visited = {};
+              var cmpts = [];
+              var cmpt;
+              function dfs(startV) {
+                var stack = [startV];
+                while (stack.length > 0) {
+                  var v = stack.pop();
+                  if (Object.hasOwn(visited, v)) continue;
+                  visited[v] = true;
+                  cmpt.push(v);
+                  var succs = g.successors(v);
+                  if (succs) for (var i = succs.length - 1; i >= 0; i--) stack.push(succs[i]);
+                  var preds = g.predecessors(v);
+                  if (preds) for (var j = preds.length - 1; j >= 0; j--) stack.push(preds[j]);
+                }
+              }
+              g.nodes().forEach(function(v) {
+                cmpt = [];
+                dfs(v);
+                if (cmpt.length) {
+                  cmpts.push(cmpt);
+                }
+              });
+              return cmpts;
+            }
+          }
+        });
+        var require_priority_queue = __commonJS2({
+          "lib/data/priority-queue.js"(exports2, module2) {
+            var PriorityQueue = class {
+              constructor() {
+                __publicField(this, "_arr", []);
+                __publicField(this, "_keyIndices", {});
+              }
+              /**
+               * Returns the number of elements in the queue. Takes `O(1)` time.
+               */
+              size() {
+                return this._arr.length;
+              }
+              /**
+               * Returns the keys that are in the queue. Takes `O(n)` time.
+               */
+              keys() {
+                return this._arr.map(function(x) {
+                  return x.key;
+                });
+              }
+              /**
+               * Returns `true` if **key** is in the queue and `false` if not.
+               */
+              has(key) {
+                return Object.hasOwn(this._keyIndices, key);
+              }
+              /**
+               * Returns the priority for **key**. If **key** is not present in the queue
+               * then this function returns `undefined`. Takes `O(1)` time.
+               *
+               * @param {Object} key
+               */
+              priority(key) {
+                var index = this._keyIndices[key];
+                if (index !== void 0) {
+                  return this._arr[index].priority;
+                }
+              }
+              /**
+               * Returns the key for the minimum element in this queue. If the queue is
+               * empty this function throws an Error. Takes `O(1)` time.
+               */
+              min() {
+                if (this.size() === 0) {
+                  throw new Error("Queue underflow");
+                }
+                return this._arr[0].key;
+              }
+              /**
+               * Inserts a new key into the priority queue. If the key already exists in
+               * the queue this function returns `false`; otherwise it will return `true`.
+               * Takes `O(n)` time.
+               *
+               * @param {Object} key the key to add
+               * @param {Number} priority the initial priority for the key
+               */
+              add(key, priority) {
+                var keyIndices = this._keyIndices;
+                key = String(key);
+                if (!Object.hasOwn(keyIndices, key)) {
+                  var arr = this._arr;
+                  var index = arr.length;
+                  keyIndices[key] = index;
+                  arr.push({ key, priority });
+                  this._decrease(index);
+                  return true;
+                }
+                return false;
+              }
+              /**
+               * Removes and returns the smallest key in the queue. Takes `O(log n)` time.
+               */
+              removeMin() {
+                this._swap(0, this._arr.length - 1);
+                var min = this._arr.pop();
+                delete this._keyIndices[min.key];
+                this._heapify(0);
+                return min.key;
+              }
+              /**
+               * Decreases the priority for **key** to **priority**. If the new priority is
+               * greater than the previous priority, this function will throw an Error.
+               *
+               * @param {Object} key the key for which to raise priority
+               * @param {Number} priority the new priority for the key
+               */
+              decrease(key, priority) {
+                var index = this._keyIndices[key];
+                if (priority > this._arr[index].priority) {
+                  throw new Error("New priority is greater than current priority. Key: " + key + " Old: " + this._arr[index].priority + " New: " + priority);
+                }
+                this._arr[index].priority = priority;
+                this._decrease(index);
+              }
+              _heapify(i) {
+                var arr = this._arr;
+                while (true) {
+                  var l = 2 * i;
+                  var r = l + 1;
+                  var largest = i;
+                  if (l < arr.length) {
+                    largest = arr[l].priority < arr[largest].priority ? l : largest;
+                    if (r < arr.length) {
+                      largest = arr[r].priority < arr[largest].priority ? r : largest;
+                    }
+                    if (largest !== i) {
+                      this._swap(i, largest);
+                      i = largest;
+                    } else {
+                      break;
+                    }
+                  } else {
+                    break;
+                  }
+                }
+              }
+              _decrease(index) {
+                var arr = this._arr;
+                var priority = arr[index].priority;
+                var parent;
+                while (index !== 0) {
+                  parent = index >> 1;
+                  if (arr[parent].priority < priority) {
+                    break;
+                  }
+                  this._swap(index, parent);
+                  index = parent;
+                }
+              }
+              _swap(i, j) {
+                var arr = this._arr;
+                var keyIndices = this._keyIndices;
+                var origArrI = arr[i];
+                var origArrJ = arr[j];
+                arr[i] = origArrJ;
+                arr[j] = origArrI;
+                keyIndices[origArrJ.key] = i;
+                keyIndices[origArrI.key] = j;
+              }
+            };
+            module2.exports = PriorityQueue;
+          }
+        });
+        var require_dijkstra = __commonJS2({
+          "lib/alg/dijkstra.js"(exports2, module2) {
+            var PriorityQueue = require_priority_queue();
+            module2.exports = dijkstra;
+            var DEFAULT_WEIGHT_FUNC = () => 1;
+            function dijkstra(g, source, weightFn, edgeFn) {
+              var defaultEdgeFn = function(v) {
+                return g.outEdges(v);
+              };
+              return runDijkstra(
+                g,
+                String(source),
+                weightFn || DEFAULT_WEIGHT_FUNC,
+                edgeFn || defaultEdgeFn
+              );
+            }
+            function runDijkstra(g, source, weightFn, edgeFn) {
+              var results = {};
+              var pq = new PriorityQueue();
+              var v, vEntry;
+              var updateNeighbors = function(edge) {
+                var w = edge.v !== v ? edge.v : edge.w;
+                var wEntry = results[w];
+                var weight = weightFn(edge);
+                var distance = vEntry.distance + weight;
+                if (weight < 0) {
+                  throw new Error("dijkstra does not allow negative edge weights. Bad edge: " + edge + " Weight: " + weight);
+                }
+                if (distance < wEntry.distance) {
+                  wEntry.distance = distance;
+                  wEntry.predecessor = v;
+                  pq.decrease(w, distance);
+                }
+              };
+              g.nodes().forEach(function(v2) {
+                var distance = v2 === source ? 0 : Number.POSITIVE_INFINITY;
+                results[v2] = { distance };
+                pq.add(v2, distance);
+              });
+              while (pq.size() > 0) {
+                v = pq.removeMin();
+                vEntry = results[v];
+                if (vEntry.distance === Number.POSITIVE_INFINITY) {
+                  break;
+                }
+                edgeFn(v).forEach(updateNeighbors);
+              }
+              return results;
+            }
+          }
+        });
+        var require_dijkstra_all = __commonJS2({
+          "lib/alg/dijkstra-all.js"(exports2, module2) {
+            var dijkstra = require_dijkstra();
+            module2.exports = dijkstraAll;
+            function dijkstraAll(g, weightFunc, edgeFunc) {
+              return g.nodes().reduce(function(acc, v) {
+                acc[v] = dijkstra(g, v, weightFunc, edgeFunc);
+                return acc;
+              }, {});
+            }
+          }
+        });
+        var require_extract_path = __commonJS2({
+          "lib/alg/extract-path.js"(exports2, module2) {
+            module2.exports = extractPath;
+            function extractPath(shortestPaths, source, destination) {
+              if (shortestPaths[source].predecessor !== void 0) {
+                throw new Error("Invalid source vertex");
+              }
+              if (shortestPaths[destination].predecessor === void 0 && destination !== source) {
+                throw new Error("Invalid destination vertex");
+              }
+              return {
+                weight: shortestPaths[destination].distance,
+                path: runExtractPath(shortestPaths, source, destination)
+              };
+            }
+            function runExtractPath(shortestPaths, source, destination) {
+              var path = [];
+              var currentNode = destination;
+              while (currentNode !== source) {
+                path.push(currentNode);
+                currentNode = shortestPaths[currentNode].predecessor;
+              }
+              path.push(source);
+              return path.reverse();
+            }
+          }
+        });
+        var require_tarjan = __commonJS2({
+          "lib/alg/tarjan.js"(exports2, module2) {
+            module2.exports = tarjan;
+            function tarjan(g) {
+              var index = 0;
+              var stack = [];
+              var visited = {};
+              var results = [];
+              function dfs(startV) {
+                var callStack = [[startV, 0]];
+                visited[startV] = { onStack: true, lowlink: index, index: index++ };
+                stack.push(startV);
+                while (callStack.length > 0) {
+                  var frame = callStack[callStack.length - 1];
+                  var v = frame[0];
+                  var succs = g.successors(v);
+                  var si = frame[1];
+                  if (si < succs.length) {
+                    frame[1] = si + 1;
+                    var w2 = succs[si];
+                    if (!Object.hasOwn(visited, w2)) {
+                      visited[w2] = { onStack: true, lowlink: index, index: index++ };
+                      stack.push(w2);
+                      callStack.push([w2, 0]);
+                    } else if (visited[w2].onStack) {
+                      visited[v].lowlink = Math.min(visited[v].lowlink, visited[w2].index);
+                    }
+                  } else {
+                    callStack.pop();
+                    var entry = visited[v];
+                    if (callStack.length > 0) {
+                      var parentV = callStack[callStack.length - 1][0];
+                      visited[parentV].lowlink = Math.min(visited[parentV].lowlink, entry.lowlink);
+                    }
+                    if (entry.lowlink === entry.index) {
+                      var cmpt = [];
+                      var w;
+                      do {
+                        w = stack.pop();
+                        visited[w].onStack = false;
+                        cmpt.push(w);
+                      } while (v !== w);
+                      results.push(cmpt);
+                    }
+                  }
+                }
+              }
+              g.nodes().forEach(function(v) {
+                if (!Object.hasOwn(visited, v)) {
+                  dfs(v);
+                }
+              });
+              return results;
+            }
+          }
+        });
+        var require_find_cycles = __commonJS2({
+          "lib/alg/find-cycles.js"(exports2, module2) {
+            var tarjan = require_tarjan();
+            module2.exports = findCycles;
+            function findCycles(g) {
+              return tarjan(g).filter(function(cmpt) {
+                return cmpt.length > 1 || cmpt.length === 1 && g.hasEdge(cmpt[0], cmpt[0]);
+              });
+            }
+          }
+        });
+        var require_floyd_warshall = __commonJS2({
+          "lib/alg/floyd-warshall.js"(exports2, module2) {
+            module2.exports = floydWarshall;
+            var DEFAULT_WEIGHT_FUNC = () => 1;
+            function floydWarshall(g, weightFn, edgeFn) {
+              return runFloydWarshall(
+                g,
+                weightFn || DEFAULT_WEIGHT_FUNC,
+                edgeFn || function(v) {
+                  return g.outEdges(v);
+                }
+              );
+            }
+            function runFloydWarshall(g, weightFn, edgeFn) {
+              var results = {};
+              var nodes = g.nodes();
+              nodes.forEach(function(v) {
+                results[v] = {};
+                results[v][v] = { distance: 0 };
+                nodes.forEach(function(w) {
+                  if (v !== w) {
+                    results[v][w] = { distance: Number.POSITIVE_INFINITY };
+                  }
+                });
+                edgeFn(v).forEach(function(edge) {
+                  var w = edge.v === v ? edge.w : edge.v;
+                  var d = weightFn(edge);
+                  results[v][w] = { distance: d, predecessor: v };
+                });
+              });
+              nodes.forEach(function(k) {
+                var rowK = results[k];
+                nodes.forEach(function(i) {
+                  var rowI = results[i];
+                  nodes.forEach(function(j) {
+                    var ik = rowI[k];
+                    var kj = rowK[j];
+                    var ij = rowI[j];
+                    var altDistance = ik.distance + kj.distance;
+                    if (altDistance < ij.distance) {
+                      ij.distance = altDistance;
+                      ij.predecessor = kj.predecessor;
+                    }
+                  });
+                });
+              });
+              return results;
+            }
+          }
+        });
+        var require_topsort = __commonJS2({
+          "lib/alg/topsort.js"(exports2, module2) {
+            function topsort(g) {
+              var visited = {};
+              var activeStack = {};
+              var results = [];
+              function visit(startNode) {
+                var callStack = [[startNode, 0]];
+                while (callStack.length > 0) {
+                  var frame = callStack[callStack.length - 1];
+                  var node = frame[0];
+                  var predIdx = frame[1];
+                  if (predIdx === 0) {
+                    if (Object.hasOwn(activeStack, node)) {
+                      throw new CycleException();
+                    }
+                    if (Object.hasOwn(visited, node)) {
+                      callStack.pop();
+                      continue;
+                    }
+                    activeStack[node] = true;
+                    visited[node] = true;
+                  }
+                  var preds = g.predecessors(node);
+                  if (predIdx < preds.length) {
+                    frame[1] = predIdx + 1;
+                    callStack.push([preds[predIdx], 0]);
+                  } else {
+                    delete activeStack[node];
+                    results.push(node);
+                    callStack.pop();
+                  }
+                }
+              }
+              g.sinks().forEach(visit);
+              if (Object.keys(visited).length !== g.nodeCount()) {
+                throw new CycleException();
+              }
+              return results;
+            }
+            var CycleException = class extends Error {
+              constructor() {
+                super(...arguments);
+              }
+            };
+            module2.exports = topsort;
+            topsort.CycleException = CycleException;
+          }
+        });
+        var require_is_acyclic = __commonJS2({
+          "lib/alg/is-acyclic.js"(exports2, module2) {
+            var topsort = require_topsort();
+            module2.exports = isAcyclic;
+            function isAcyclic(g) {
+              try {
+                topsort(g);
+              } catch (e) {
+                if (e instanceof topsort.CycleException) {
+                  return false;
+                }
+                throw e;
+              }
+              return true;
+            }
+          }
+        });
+        var require_reduce = __commonJS2({
+          "lib/alg/reduce.js"(exports2, module2) {
+            module2.exports = reduce;
+            function reduce(g, vs, order, fn, acc) {
+              if (!Array.isArray(vs)) {
+                vs = [vs];
+              }
+              var navigation = (g.isDirected() ? g.successors : g.neighbors).bind(g);
+              var visited = {};
+              vs.forEach(function(v) {
+                if (!g.hasNode(v)) {
+                  throw new Error("Graph does not have node: " + v);
+                }
+                acc = doReduce(g, v, order === "post", visited, navigation, fn, acc);
+              });
+              return acc;
+            }
+            function doReduce(g, startV, postorder, visited, navigation, fn, acc) {
+              if (Object.hasOwn(visited, startV)) return acc;
+              var callStack = [[startV, 0]];
+              visited[startV] = true;
+              if (!postorder) {
+                acc = fn(acc, startV);
+              }
+              while (callStack.length > 0) {
+                var frame = callStack[callStack.length - 1];
+                var v = frame[0];
+                var neighbors = navigation(v);
+                var idx = frame[1];
+                var pushed = false;
+                for (var i = idx; i < neighbors.length; i++) {
+                  var w = neighbors[i];
+                  if (!Object.hasOwn(visited, w)) {
+                    visited[w] = true;
+                    frame[1] = i + 1;
+                    if (!postorder) {
+                      acc = fn(acc, w);
+                    }
+                    callStack.push([w, 0]);
+                    pushed = true;
+                    break;
+                  }
+                }
+                if (!pushed) {
+                  if (postorder) {
+                    acc = fn(acc, v);
+                  }
+                  callStack.pop();
+                }
+              }
+              return acc;
+            }
+          }
+        });
+        var require_dfs = __commonJS2({
+          "lib/alg/dfs.js"(exports2, module2) {
+            var reduce = require_reduce();
+            module2.exports = dfs;
+            function dfs(g, vs, order) {
+              return reduce(g, vs, order, function(acc, v) {
+                acc.push(v);
+                return acc;
+              }, []);
+            }
+          }
+        });
+        var require_postorder = __commonJS2({
+          "lib/alg/postorder.js"(exports2, module2) {
+            var dfs = require_dfs();
+            module2.exports = postorder;
+            function postorder(g, vs) {
+              return dfs(g, vs, "post");
+            }
+          }
+        });
+        var require_preorder = __commonJS2({
+          "lib/alg/preorder.js"(exports2, module2) {
+            var dfs = require_dfs();
+            module2.exports = preorder;
+            function preorder(g, vs) {
+              return dfs(g, vs, "pre");
+            }
+          }
+        });
+        var require_prim = __commonJS2({
+          "lib/alg/prim.js"(exports2, module2) {
+            var Graph = require_graph();
+            var PriorityQueue = require_priority_queue();
+            module2.exports = prim;
+            function prim(g, weightFunc) {
+              var result = new Graph();
+              var parents = {};
+              var pq = new PriorityQueue();
+              var v;
+              function updateNeighbors(edge) {
+                var w = edge.v === v ? edge.w : edge.v;
+                var pri = pq.priority(w);
+                if (pri !== void 0) {
+                  var edgeWeight = weightFunc(edge);
+                  if (edgeWeight < pri) {
+                    parents[w] = v;
+                    pq.decrease(w, edgeWeight);
+                  }
+                }
+              }
+              if (g.nodeCount() === 0) {
+                return result;
+              }
+              g.nodes().forEach(function(v2) {
+                pq.add(v2, Number.POSITIVE_INFINITY);
+                result.setNode(v2);
+              });
+              pq.decrease(g.nodes()[0], 0);
+              var init = false;
+              while (pq.size() > 0) {
+                v = pq.removeMin();
+                if (Object.hasOwn(parents, v)) {
+                  result.setEdge(v, parents[v]);
+                } else if (init) {
+                  throw new Error("Input graph is not connected: " + g);
+                } else {
+                  init = true;
+                }
+                g.nodeEdges(v).forEach(updateNeighbors);
+              }
+              return result;
+            }
+          }
+        });
+        var require_shortest_paths = __commonJS2({
+          "lib/alg/shortest-paths.js"(exports2, module2) {
+            var dijkstra = require_dijkstra();
+            var bellmanFord = require_bellman_ford();
+            module2.exports = shortestPaths;
+            function shortestPaths(g, source, weightFn, edgeFn) {
+              return runShortestPaths(
+                g,
+                source,
+                weightFn,
+                edgeFn || function(v) {
+                  return g.outEdges(v);
+                }
+              );
+            }
+            function runShortestPaths(g, source, weightFn, edgeFn) {
+              if (weightFn === void 0) {
+                return dijkstra(g, source, weightFn, edgeFn);
+              }
+              var negativeEdgeExists = false;
+              var nodes = g.nodes();
+              for (var i = 0; i < nodes.length; i++) {
+                var adjList = edgeFn(nodes[i]);
+                for (var j = 0; j < adjList.length; j++) {
+                  var edge = adjList[j];
+                  var inVertex = edge.v === nodes[i] ? edge.v : edge.w;
+                  var outVertex = inVertex === edge.v ? edge.w : edge.v;
+                  if (weightFn({ v: inVertex, w: outVertex }) < 0) {
+                    negativeEdgeExists = true;
+                  }
+                }
+                if (negativeEdgeExists) {
+                  return bellmanFord(g, source, weightFn, edgeFn);
+                }
+              }
+              return dijkstra(g, source, weightFn, edgeFn);
+            }
+          }
+        });
+        var require_alg = __commonJS2({
+          "lib/alg/index.js"(exports2, module2) {
+            module2.exports = {
+              bellmanFord: require_bellman_ford(),
+              components: require_components(),
+              dijkstra: require_dijkstra(),
+              dijkstraAll: require_dijkstra_all(),
+              extractPath: require_extract_path(),
+              findCycles: require_find_cycles(),
+              floydWarshall: require_floyd_warshall(),
+              isAcyclic: require_is_acyclic(),
+              postorder: require_postorder(),
+              preorder: require_preorder(),
+              prim: require_prim(),
+              shortestPaths: require_shortest_paths(),
+              reduce: require_reduce(),
+              tarjan: require_tarjan(),
+              topsort: require_topsort()
+            };
+          }
+        });
+        var require_index2 = __commonJS2({
+          "index.js"(exports2, module2) {
+            var lib = require_lib();
+            module2.exports = {
+              Graph: lib.Graph,
+              json: require_json(),
+              alg: require_alg(),
+              version: lib.version
+            };
+          }
+        });
+        return require_index2();
+      })();
+      module.exports = graphlib;
     }
   });
 
@@ -1054,20 +1838,32 @@ var dagre = (() => {
         let fas = [];
         let stack = {};
         let visited = {};
-        function dfs(v) {
-          if (Object.hasOwn(visited, v)) {
-            return;
-          }
-          visited[v] = true;
-          stack[v] = true;
-          g.outEdges(v).forEach((e) => {
-            if (Object.hasOwn(stack, e.w)) {
-              fas.push(e);
-            } else {
-              dfs(e.w);
+        function dfs(startV) {
+          let callStack = [[startV, 0]];
+          while (callStack.length > 0) {
+            let [v, idx] = callStack[callStack.length - 1];
+            if (idx === 0) {
+              if (Object.hasOwn(visited, v)) {
+                callStack.pop();
+                continue;
+              }
+              visited[v] = true;
+              stack[v] = true;
             }
-          });
-          delete stack[v];
+            let edges = g.outEdges(v);
+            if (idx < edges.length) {
+              callStack[callStack.length - 1][1] = idx + 1;
+              let e = edges[idx];
+              if (Object.hasOwn(stack, e.w)) {
+                fas.push(e);
+              } else {
+                callStack.push([e.w, 0]);
+              }
+            } else {
+              delete stack[v];
+              callStack.pop();
+            }
+          }
         }
         g.nodes().forEach(dfs);
         return fas;
@@ -1170,23 +1966,40 @@ var dagre = (() => {
       };
       function longestPath(g) {
         var visited = {};
-        function dfs(v) {
-          var label = g.node(v);
-          if (Object.hasOwn(visited, v)) {
-            return label.rank;
-          }
-          visited[v] = true;
-          let outEdgesMinLens = g.outEdges(v).map((e) => {
-            if (e == null) {
-              return Number.POSITIVE_INFINITY;
+        function dfs(startV) {
+          let callStack = [[startV, false]];
+          while (callStack.length > 0) {
+            let [v, processed] = callStack[callStack.length - 1];
+            if (Object.hasOwn(visited, v)) {
+              callStack.pop();
+              continue;
             }
-            return dfs(e.w) - g.edge(e).minlen;
-          });
-          var rank = applyWithChunking(Math.min, outEdgesMinLens);
-          if (rank === Number.POSITIVE_INFINITY) {
-            rank = 0;
+            if (!processed) {
+              callStack[callStack.length - 1][1] = true;
+              let outEdges = g.outEdges(v);
+              for (let i = outEdges.length - 1; i >= 0; i--) {
+                let e = outEdges[i];
+                if (e != null && !Object.hasOwn(visited, e.w)) {
+                  callStack.push([e.w, false]);
+                }
+              }
+            } else {
+              callStack.pop();
+              visited[v] = true;
+              var label = g.node(v);
+              let outEdgesMinLens = g.outEdges(v).map((e) => {
+                if (e == null) {
+                  return Number.POSITIVE_INFINITY;
+                }
+                return g.node(e.w).rank - g.edge(e).minlen;
+              });
+              var rank = applyWithChunking(Math.min, outEdgesMinLens);
+              if (rank === Number.POSITIVE_INFINITY) {
+                rank = 0;
+              }
+              label.rank = rank;
+            }
           }
-          return label.rank = rank;
         }
         g.sources().forEach(dfs);
       }
@@ -1217,15 +2030,19 @@ var dagre = (() => {
         return t;
       }
       function tightTree(t, g) {
-        function dfs(v) {
-          g.nodeEdges(v).forEach((e) => {
-            var edgeV = e.v, w = v === edgeV ? e.w : edgeV;
-            if (!t.hasNode(w) && !slack(g, e)) {
-              t.setNode(w, {});
-              t.setEdge(v, w, {});
-              dfs(w);
-            }
-          });
+        function dfs(startV) {
+          let stack = [startV];
+          while (stack.length > 0) {
+            let v = stack.pop();
+            g.nodeEdges(v).forEach((e) => {
+              var edgeV = e.v, w = v === edgeV ? e.w : edgeV;
+              if (!t.hasNode(w) && !slack(g, e)) {
+                t.setNode(w, {});
+                t.setEdge(v, w, {});
+                stack.push(w);
+              }
+            });
+          }
         }
         t.nodes().forEach(dfs);
         return t.nodeCount();
@@ -1318,21 +2135,36 @@ var dagre = (() => {
         }
         dfsAssignLowLim(tree, {}, 1, root);
       }
-      function dfsAssignLowLim(tree, visited, nextLim, v, parent) {
-        var low = nextLim;
-        var label = tree.node(v);
-        visited[v] = true;
-        tree.neighbors(v).forEach((w) => {
-          if (!Object.hasOwn(visited, w)) {
-            nextLim = dfsAssignLowLim(tree, visited, nextLim, w, v);
+      function dfsAssignLowLim(tree, visited, nextLim, startV, startParent) {
+        let callStack = [[startV, startParent, 0, nextLim]];
+        while (callStack.length > 0) {
+          let frame = callStack[callStack.length - 1];
+          let [v, parent, childIdx, low] = frame;
+          if (childIdx === 0) {
+            visited[v] = true;
           }
-        });
-        label.low = low;
-        label.lim = nextLim++;
-        if (parent) {
-          label.parent = parent;
-        } else {
-          delete label.parent;
+          let neighbors = tree.neighbors(v);
+          let pushed = false;
+          for (let i = childIdx; i < neighbors.length; i++) {
+            let w = neighbors[i];
+            if (!Object.hasOwn(visited, w)) {
+              frame[2] = i + 1;
+              callStack.push([w, v, 0, nextLim]);
+              pushed = true;
+              break;
+            }
+          }
+          if (!pushed) {
+            let label = tree.node(v);
+            label.low = low;
+            label.lim = nextLim++;
+            if (parent) {
+              label.parent = parent;
+            } else {
+              delete label.parent;
+            }
+            callStack.pop();
+          }
         }
         return nextLim;
       }
@@ -1494,12 +2326,23 @@ var dagre = (() => {
       function postorder(g) {
         let result = {};
         let lim = 0;
-        function dfs(v) {
-          let low = lim;
-          g.children(v).forEach(dfs);
-          result[v] = { low, lim: lim++ };
+        let stack = [];
+        g.children().forEach((v) => stack.push([v, false, 0]));
+        while (stack.length > 0) {
+          let frame = stack[stack.length - 1];
+          let [v, childrenPushed] = frame;
+          if (!childrenPushed) {
+            frame[1] = true;
+            frame[2] = lim;
+            let children = g.children(v);
+            for (let i = children.length - 1; i >= 0; i--) {
+              stack.push([children[i], false, 0]);
+            }
+          } else {
+            stack.pop();
+            result[v] = { low: frame[2], lim: lim++ };
+          }
         }
-        g.children().forEach(dfs);
         return result;
       }
     }
@@ -1525,53 +2368,68 @@ var dagre = (() => {
         g.children().forEach((child) => dfs(g, root, nodeSep, weight, height, depths, child));
         g.graph().nodeRankFactor = nodeSep;
       }
-      function dfs(g, root, nodeSep, weight, height, depths, v) {
-        let children = g.children(v);
-        if (!children.length) {
-          if (v !== root) {
-            g.setEdge(root, v, { weight: 0, minlen: nodeSep });
+      function dfs(g, root, nodeSep, weight, height, depths, startV) {
+        let stack = [[startV, false]];
+        while (stack.length > 0) {
+          let frame = stack[stack.length - 1];
+          let [v, childrenPushed] = frame;
+          let children = g.children(v);
+          if (!children.length) {
+            stack.pop();
+            if (v !== root) {
+              g.setEdge(root, v, { weight: 0, minlen: nodeSep });
+            }
+            continue;
           }
-          return;
-        }
-        let top = util.addBorderNode(g, "_bt");
-        let bottom = util.addBorderNode(g, "_bb");
-        let label = g.node(v);
-        g.setParent(top, v);
-        label.borderTop = top;
-        g.setParent(bottom, v);
-        label.borderBottom = bottom;
-        children.forEach((child) => {
-          dfs(g, root, nodeSep, weight, height, depths, child);
-          let childNode = g.node(child);
-          let childTop = childNode.borderTop ? childNode.borderTop : child;
-          let childBottom = childNode.borderBottom ? childNode.borderBottom : child;
-          let thisWeight = childNode.borderTop ? weight : 2 * weight;
-          let minlen = childTop !== childBottom ? 1 : height - depths[v] + 1;
-          g.setEdge(top, childTop, {
-            weight: thisWeight,
-            minlen,
-            nestingEdge: true
+          if (!childrenPushed) {
+            frame[1] = true;
+            for (let i = children.length - 1; i >= 0; i--) {
+              stack.push([children[i], false]);
+            }
+            continue;
+          }
+          stack.pop();
+          let top = util.addBorderNode(g, "_bt");
+          let bottom = util.addBorderNode(g, "_bb");
+          let label = g.node(v);
+          g.setParent(top, v);
+          label.borderTop = top;
+          g.setParent(bottom, v);
+          label.borderBottom = bottom;
+          children.forEach((child) => {
+            let childNode = g.node(child);
+            let childTop = childNode.borderTop ? childNode.borderTop : child;
+            let childBottom = childNode.borderBottom ? childNode.borderBottom : child;
+            let thisWeight = childNode.borderTop ? weight : 2 * weight;
+            let minlen = childTop !== childBottom ? 1 : height - depths[v] + 1;
+            g.setEdge(top, childTop, {
+              weight: thisWeight,
+              minlen,
+              nestingEdge: true
+            });
+            g.setEdge(childBottom, bottom, {
+              weight: thisWeight,
+              minlen,
+              nestingEdge: true
+            });
           });
-          g.setEdge(childBottom, bottom, {
-            weight: thisWeight,
-            minlen,
-            nestingEdge: true
-          });
-        });
-        if (!g.parent(v)) {
-          g.setEdge(root, top, { weight: 0, minlen: height + depths[v] });
+          if (!g.parent(v)) {
+            g.setEdge(root, top, { weight: 0, minlen: height + depths[v] });
+          }
         }
       }
       function treeDepths(g) {
         var depths = {};
-        function dfs2(v, depth) {
+        let stack = [];
+        g.children().forEach((v) => stack.push([v, 1]));
+        while (stack.length > 0) {
+          let [v, depth] = stack.pop();
           var children = g.children(v);
           if (children && children.length) {
-            children.forEach((child) => dfs2(child, depth + 1));
+            children.forEach((child) => stack.push([child, depth + 1]));
           }
           depths[v] = depth;
         }
-        g.children().forEach((v) => dfs2(v, 1));
         return depths;
       }
       function sumWeights(g) {
@@ -1597,12 +2455,21 @@ var dagre = (() => {
       var util = require_util();
       module.exports = addBorderSegments;
       function addBorderSegments(g) {
-        function dfs(v) {
+        let stack = [];
+        g.children().forEach((v) => stack.push([v, false]));
+        while (stack.length > 0) {
+          let frame = stack[stack.length - 1];
+          let [v, childrenPushed] = frame;
           let children = g.children(v);
-          let node = g.node(v);
-          if (children.length) {
-            children.forEach(dfs);
+          if (children.length && !childrenPushed) {
+            frame[1] = true;
+            for (let i = children.length - 1; i >= 0; i--) {
+              stack.push([children[i], false]);
+            }
+            continue;
           }
+          stack.pop();
+          let node = g.node(v);
           if (Object.hasOwn(node, "minRank")) {
             node.borderLeft = [];
             node.borderRight = [];
@@ -1612,7 +2479,6 @@ var dagre = (() => {
             }
           }
         }
-        g.children().forEach(dfs);
       }
       function addBorderNode(g, prop, prefix, sg, sgNode, rank) {
         let label = { width: 0, height: 0, rank, borderType: prop };
@@ -1703,12 +2569,19 @@ var dagre = (() => {
         let simpleNodesRanks = simpleNodes.map((v) => g.node(v).rank);
         let maxRank = util.applyWithChunking(Math.max, simpleNodesRanks);
         let layers = util.range(maxRank + 1).map(() => []);
-        function dfs(v) {
-          if (visited[v]) return;
-          visited[v] = true;
-          let node = g.node(v);
-          layers[node.rank].push(v);
-          g.successors(v).forEach(dfs);
+        function dfs(startV) {
+          let stack = [startV];
+          while (stack.length > 0) {
+            let v = stack.pop();
+            if (visited[v]) continue;
+            visited[v] = true;
+            let node = g.node(v);
+            layers[node.rank].push(v);
+            let succs = g.successors(v);
+            for (let i = succs.length - 1; i >= 0; i--) {
+              stack.push(succs[i]);
+            }
+          }
         }
         let orderedVs = simpleNodes.sort((a, b) => g.node(a).rank - g.node(b).rank);
         orderedVs.forEach(dfs);
@@ -1926,41 +2799,64 @@ var dagre = (() => {
       var resolveConflicts = require_resolve_conflicts();
       var sort = require_sort();
       module.exports = sortSubgraph;
-      function sortSubgraph(g, v, cg, biasRight) {
-        let movable = g.children(v);
-        let node = g.node(v);
-        let bl = node ? node.borderLeft : void 0;
-        let br = node ? node.borderRight : void 0;
-        let subgraphs = {};
-        if (bl) {
-          movable = movable.filter((w) => w !== bl && w !== br);
-        }
-        let barycenters = barycenter(g, movable);
-        barycenters.forEach((entry) => {
-          if (g.children(entry.v).length) {
-            let subgraphResult = sortSubgraph(g, entry.v, cg, biasRight);
-            subgraphs[entry.v] = subgraphResult;
-            if (Object.hasOwn(subgraphResult, "barycenter")) {
-              mergeBarycenters(entry, subgraphResult);
+      function sortSubgraph(g, startV, cg, biasRight) {
+        let postOrder = [];
+        let dfsStack = [startV];
+        while (dfsStack.length > 0) {
+          let v = dfsStack.pop();
+          postOrder.push(v);
+          let movable = g.children(v);
+          let node = g.node(v);
+          let bl = node ? node.borderLeft : void 0;
+          if (bl) {
+            movable = movable.filter((w) => w !== bl && w !== node.borderRight);
+          }
+          let bcs = barycenter(g, movable);
+          for (let i = bcs.length - 1; i >= 0; i--) {
+            if (g.children(bcs[i].v).length) {
+              dfsStack.push(bcs[i].v);
             }
           }
-        });
-        let entries = resolveConflicts(barycenters, cg);
-        expandSubgraphs(entries, subgraphs);
-        let result = sort(entries, biasRight);
-        if (bl) {
-          result.vs = [bl, result.vs, br].flat(true);
-          if (g.predecessors(bl).length) {
-            let blPred = g.node(g.predecessors(bl)[0]), brPred = g.node(g.predecessors(br)[0]);
-            if (!Object.hasOwn(result, "barycenter")) {
-              result.barycenter = 0;
-              result.weight = 0;
-            }
-            result.barycenter = (result.barycenter * result.weight + blPred.order + brPred.order) / (result.weight + 2);
-            result.weight += 2;
-          }
         }
-        return result;
+        let results = {};
+        for (let i = postOrder.length - 1; i >= 0; i--) {
+          let v = postOrder[i];
+          let movable = g.children(v);
+          let node = g.node(v);
+          let bl = node ? node.borderLeft : void 0;
+          let br = node ? node.borderRight : void 0;
+          let subgraphs = {};
+          if (bl) {
+            movable = movable.filter((w) => w !== bl && w !== br);
+          }
+          let barycenters = barycenter(g, movable);
+          barycenters.forEach((entry) => {
+            if (g.children(entry.v).length) {
+              let subgraphResult = results[entry.v];
+              subgraphs[entry.v] = subgraphResult;
+              if (Object.hasOwn(subgraphResult, "barycenter")) {
+                mergeBarycenters(entry, subgraphResult);
+              }
+            }
+          });
+          let entries = resolveConflicts(barycenters, cg);
+          expandSubgraphs(entries, subgraphs);
+          let result = sort(entries, biasRight);
+          if (bl) {
+            result.vs = [bl, result.vs, br].flat(true);
+            if (g.predecessors(bl).length) {
+              let blPred = g.node(g.predecessors(bl)[0]), brPred = g.node(g.predecessors(br)[0]);
+              if (!Object.hasOwn(result, "barycenter")) {
+                result.barycenter = 0;
+                result.weight = 0;
+              }
+              result.barycenter = (result.barycenter * result.weight + blPred.order + brPred.order) / (result.weight + 2);
+              result.weight += 2;
+            }
+          }
+          results[v] = result;
+        }
+        return results[startV];
       }
       function expandSubgraphs(entries, subgraphs) {
         entries.forEach((entry) => {
